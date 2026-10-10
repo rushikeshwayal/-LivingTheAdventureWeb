@@ -39,7 +39,7 @@ function NavBar() {
                         return (
                             <Link key={to} to={to} aria-label={label} aria-current={active ? "page" : undefined} title={label} className={linkClass(active)}>
                                 <Icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-                                <span className="hidden text-xs md:inline">{label}</span>
+                                <span className="hidden text-xs">{label}</span>
                                 {active && <span className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-amber-300 md:bottom-auto md:left-0 md:top-1/2 md:h-5 md:w-0.5 md:-translate-y-1/2 md:translate-x-0" />}
                             </Link>
                         );
