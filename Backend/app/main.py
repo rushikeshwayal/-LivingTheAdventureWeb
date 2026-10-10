@@ -7,6 +7,7 @@ from schedule.api.api import router as event_schedule_router
 from special.api.api import router as special_router
 from favourite.api.api import router as favourite_router
 from database.database import Base, engine
+from upload.model import MediaAsset  # noqa: F401
 from favourite.model.model import Favourite  # noqa: F401
 from admin.api.api import router as admin_router
 from upload.api import router as upload_router

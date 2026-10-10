@@ -14,6 +14,10 @@ function getAuthHeaders() {
 export default function GalleryUploadField({ label, folder, values, onChange, helperText }) {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState("");
+    const [search, setSearch] = useState("");
+    const [library, setLibrary] = useState([]);
+    const [showLibrary, setShowLibrary] = useState(false);
+    const [tags, setTags] = useState("");
     const inputRef = useRef(null);
 
     const handleFiles = async (e) => {
@@ -38,6 +42,8 @@ export default function GalleryUploadField({ label, folder, values, onChange, he
                 const formData = new FormData();
                 formData.append("file", file);
                 formData.append("folder", folder);
+                formData.append("name", file.name.replace(/\.[^.]+$/, ""));
+                formData.append("tags", tags);
 
                 const res = await API.post("/upload/image", formData, {
                     headers: getAuthHeaders(),
@@ -72,6 +78,8 @@ export default function GalleryUploadField({ label, folder, values, onChange, he
                 {label}
             </label>
 
+            <div className="mb-2 flex gap-2"><input className="border p-2 text-sm" aria-label="Gallery tags" placeholder="Tags (comma-separated)" value={tags} onChange={e => setTags(e.target.value)} /><button type="button" className="border px-3" onClick={async () => {setShowLibrary(true); try {const r = await API.get("/storage/search", {params:{folder,q:search},headers:getAuthHeaders()}); setLibrary(r.data.results || []);} catch {setError("Unable to load media");}}}>Browse existing</button></div>
+            {showLibrary && <div className="mb-3 border p-3"><input aria-label="Search gallery" className="border p-2" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search media" /><button type="button" onClick={async()=>{try{const r=await API.get("/storage/search",{params:{folder,q:search},headers:getAuthHeaders()});setLibrary(r.data.results||[]);}catch{setError("Search failed");}}}>Search</button><button type="button" onClick={()=>setShowLibrary(false)}>Close</button><div className="grid grid-cols-4 gap-2">{library.map(asset=><button key={asset.id} type="button" onClick={()=>onChange([...new Set([...values,asset.url])])}><img src={asset.preview_url} alt={asset.name} className="h-20 w-full object-cover" /><span className="text-xs">{asset.name}</span></button>)}</div></div>}
             <div className="flex flex-wrap gap-3">
                 {values.map((url, i) => (
                     <div

@@ -23,6 +23,11 @@ export default function ImageUploadField({
 }) {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState("");
+    const [name, setName] = useState("");
+    const [tags, setTags] = useState("");
+    const [search, setSearch] = useState("");
+    const [library, setLibrary] = useState([]);
+    const [showLibrary, setShowLibrary] = useState(false);
     const inputRef = useRef(null);
 
     const handleFile = async (e) => {
@@ -51,6 +56,8 @@ export default function ImageUploadField({
             const formData = new FormData();
             formData.append("file", file);
             formData.append("folder", folder);
+            formData.append("name", name || file.name.replace(/\.[^.]+$/, ""));
+            formData.append("tags", tags);
 
             const res = await API.post("/upload/image", formData, {
                 headers: getAuthHeaders(),
@@ -76,6 +83,12 @@ export default function ImageUploadField({
                 {label}
             </label>
 
+            <div className="mb-2 flex flex-wrap gap-2">
+                <input className="border p-2 text-sm" aria-label="Media name" placeholder="Media name" value={name} onChange={e => setName(e.target.value)} />
+                <input className="border p-2 text-sm" aria-label="Tags" placeholder="Tags (comma-separated)" value={tags} onChange={e => setTags(e.target.value)} />
+                <button type="button" className="border px-3 py-2 text-sm" onClick={async () => { setShowLibrary(true); try { const r = await API.get("/storage/search", {params: {folder, q: search}, headers: getAuthHeaders()}); setLibrary(r.data.results || []); } catch { setError("Unable to load media library"); } }}>Browse existing</button>
+            </div>
+            {showLibrary && <div className="mb-3 rounded border p-3"><div className="flex gap-2"><input aria-label="Search media" className="border p-2" placeholder="Search by name or tag" value={search} onChange={e => setSearch(e.target.value)} /><button type="button" onClick={async () => { try { const r = await API.get("/storage/search", {params: {folder, q: search}, headers: getAuthHeaders()}); setLibrary(r.data.results || []); } catch { setError("Search failed"); } }}>Search</button><button type="button" onClick={() => setShowLibrary(false)}>Close</button></div><div className="mt-2 grid grid-cols-3 gap-2">{library.map(asset => <button key={asset.id} type="button" className="border p-1 text-left" onClick={() => { onChange(asset.url); setShowLibrary(false); }}>{asset.content_type.startsWith("video/") ? <video src={asset.preview_url} className="h-20 w-full object-cover" /> : <img src={asset.preview_url} alt={asset.name} className="h-20 w-full object-cover" />}<span className="block truncate text-xs">{asset.name}</span></button>)}</div></div>}
             <div
                 onClick={() => !uploading && inputRef.current?.click()}
                 className="relative group h-36 rounded-sm border border-dashed border-[#1B222C]/20 bg-[#1B222C]/[0.02] overflow-hidden cursor-pointer hover:border-[#A9782F]/60 transition-colors"
