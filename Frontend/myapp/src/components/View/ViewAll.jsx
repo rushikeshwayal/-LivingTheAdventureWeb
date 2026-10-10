@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import NavBar from "../Nav/NavBar";
+import Footer from "../Footer/Footer";
 import fetchEventsByType from "./FetchEvent";
 import VerticalEventCard from "../Common/EventCard/VerticalEventCard";
 import Spinner from "../Spinner/Spinner";
@@ -87,7 +89,9 @@ function ViewAll({ event_type, state }) {
     const title = TYPE_LABELS[event_type] || event_type?.replaceAll("_", " ") || "Adventures";
 
     return (
-        <main className="app-page min-h-screen pb-16 pt-10 md:pb-12 md:pl-[76px]">
+        <>
+            <NavBar />
+            <main className="app-page min-h-screen pb-16 pt-10 md:pb-12 md:pl-[76px]">
             <section className="app-container">
                 <header className="mb-8 flex flex-col gap-4 border-b border-white/10 pb-7 sm:flex-row sm:items-end sm:justify-between">
                     <div>
@@ -131,7 +135,9 @@ function ViewAll({ event_type, state }) {
                     </div>
                 )}
             </section>
-        </main>
+            </main>
+            <Footer />
+        </>
     );
 }
 
