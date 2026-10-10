@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ImagePlus, Layers3, Plus, RefreshCw, Search, Sparkles, Trash2, Pencil, X } from "lucide-react";
 import API from "../api";
 import Navbar from "../components/Navbar/NavBar";
+import ImageUploadField from "../CreateEvent/Imageuploadfield";
 
 const EMPTY = { event_id:"", title:"", rank:1, hero_type:"Home", video_url:"", thumbnail_image_url:"", description:"", details:[], genres:[], status:"draft", active:true };
 const inputClass = "w-full rounded-sm border border-[#1B222C]/15 bg-white px-3 py-2.5 text-sm text-[#1B222C] outline-none transition focus:border-[#A9782F] focus:ring-2 focus:ring-[#A9782F]/10";
@@ -31,8 +32,8 @@ export default function HeroManagementPage() {
  <Field label="Hero title"><input required className={inputClass} value={form.title} onChange={e=>set("title",e.target.value)} placeholder="Featured adventure title"/></Field>
  <Field label="Hero type" hint='Use "Home" for the home page hero.'><select className={inputClass} value={form.hero_type} onChange={e=>set("hero_type",e.target.value)}><option>Home</option><option>Trip</option><option>Track</option></select></Field>
  <Field label="Display rank" hint="Use a smaller number for an earlier item."><input type="number" min="0" step="1" className={inputClass} value={form.rank} onChange={e=>set("rank",e.target.value)}/></Field>
- <Field label="Thumbnail image URL"><input type="url" className={inputClass} value={form.thumbnail_image_url} onChange={e=>set("thumbnail_image_url",e.target.value)} placeholder="https://…"/></Field>
- <Field label="Video URL (optional)"><input type="url" className={inputClass} value={form.video_url} onChange={e=>set("video_url",e.target.value)} placeholder="https://…"/></Field>
+ <div><ImageUploadField label="Thumbnail image" folder="hero" value={form.thumbnail_image_url} onChange={url=>set("thumbnail_image_url",url)} accept="image/jpeg,image/png,image/webp,image/gif" kind="image" helperText="Upload the thumbnail to S3. The resulting URL is saved with the hero."/></div>
+ <div><ImageUploadField label="Hero video (optional)" folder="promo_video" value={form.video_url} onChange={url=>set("video_url",url)} accept="video/mp4,video/webm" kind="video" helperText="Upload an MP4/WebM file directly to S3."/></div>
  <Field label="Status"><select className={inputClass} value={form.status} onChange={e=>set("status",e.target.value)}><option value="draft">Draft</option><option value="published">Published</option><option value="archived">Archived</option></select></Field>
  <Field label="Visibility"><select className={inputClass} value={form.active?"true":"false"} onChange={e=>set("active",e.target.value==="true")}><option value="true">Active</option><option value="false">Inactive</option></select></Field>
  <div className="md:col-span-2"><Field label="Description"><textarea rows={3} className={inputClass} value={form.description} onChange={e=>set("description",e.target.value)} placeholder="Short descriptive copy"/></Field></div>
