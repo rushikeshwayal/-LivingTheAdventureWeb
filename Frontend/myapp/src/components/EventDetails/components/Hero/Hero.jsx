@@ -18,7 +18,7 @@ function Hero({
     useEffect(() => {
         const timer = setTimeout(() => {
             setMinTimePassed(true);
-        }, 3000);
+        }, 500);
 
         return () => clearTimeout(timer);
     }, []);
@@ -43,7 +43,7 @@ function Hero({
     }, [minTimePassed, videoReady]);
 
     return (
-        <section className="relative w-full h-[70vh] md:h-screen overflow-hidden bg-black">
+        <section className="relative min-h-[68svh] w-full overflow-hidden bg-black sm:h-[78svh] md:h-screen">
 
             {/* Poster (default layer) */}
             <img
@@ -63,7 +63,7 @@ function Hero({
                     src={promo_video}
                     muted
                     playsInline
-                    preload="auto"
+                    preload="metadata"
                     loop
                     className={`absolute inset-0 w-full h-full object-cover
             transition-opacity duration-1000
@@ -90,17 +90,17 @@ function Hero({
       " />
 
             {/* Content */}
-            <div className="relative z-10 h-full w-full flex items-center justify-center text-center px-6">
-                <div className="max-w-3xl">
-                    <p className="font-cenzel text-sm md:text-base uppercase tracking-widest text-gray-300 mb-3">
+            <div className="relative z-10 flex min-h-[68svh] w-full items-end justify-center px-5 pb-16 pt-24 text-center sm:min-h-0 sm:h-full sm:items-center sm:px-8 sm:py-16">
+                <div className="mx-auto max-w-3xl">
+                    <p className="mb-3 text-xs uppercase tracking-[0.24em] text-amber-200 sm:text-sm md:text-base">
                         {event_type}
                     </p>
 
-                    <h1 className="font-bebas text-6xl tracking-widest uppercase text-white">
+                    <h1 className="font-bebas text-5xl uppercase leading-[0.95] tracking-wide text-white drop-shadow-lg sm:text-6xl md:text-8xl md:tracking-widest">
                         {event_title}
                     </h1>
 
-                    <p className="text-base md:text-lg capitalize tracking-widest text-gray-300 mt-3">
+                    <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-gray-200 sm:text-base md:text-lg">
                         {event_description}
                     </p>
                 </div>

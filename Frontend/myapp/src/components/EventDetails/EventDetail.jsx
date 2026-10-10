@@ -306,8 +306,7 @@ function EventDetail() {
 
     return (
 
-        <div>
-
+        <div className="min-h-screen overflow-x-clip bg-neutral-950 pb-20 sm:pb-0">
 
             {/* ================================================= */}
             {/* HERO */}
@@ -342,13 +341,13 @@ function EventDetail() {
 
             <section className="
                 bg-neutral-950
-                py-16
+                py-10 sm:py-16
             ">
 
                 <div className="
-                    max-w-7xl
                     mx-auto
-                    px-6
+                    max-w-7xl
+                    px-4 sm:px-6
                 ">
 
                     <div className="
@@ -379,7 +378,7 @@ function EventDetail() {
 
                     <div className="
                         grid
-                        sm:grid-cols-2
+                        grid-cols-1 sm:grid-cols-2
                         lg:grid-cols-3
                         gap-6
                     ">
@@ -652,9 +651,9 @@ function EventDetail() {
             ">
 
                 <div className="
-                    space-y-10
-                    py-20
-                    px-6
+                    space-y-8 sm:space-y-10
+                    py-10 sm:py-16
+                    px-4 sm:px-6
                     max-w-7xl
                     mx-auto
                 ">
@@ -786,8 +785,10 @@ function EventDetail() {
 
             <section className="
                 fixed
-                bottom-0
+                bottom-16
+                z-30
                 w-full
+                sm:bottom-0
             ">
 
                 <Highlights
