@@ -210,7 +210,7 @@ export default function EventsListPage() {
                         <h1 className="text-3xl font-serif text-[#1B222C]">Events</h1>
                     </div>
                     <button
-                        onClick={() => window.location.replace("/admin/events/new")}
+                        onClick={() => navigate("/admin/events/new")}
                         className="bg-[#1B222C] hover:bg-[#A9782F] text-[#F5F2E9] text-sm font-medium px-5 py-2.5 rounded-sm transition-colors"
                     >
                         + New event
@@ -342,7 +342,7 @@ export default function EventsListPage() {
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ duration: 0.25, ease: EASE, delay: i * 0.02 }}
-                                                onClick={() => window.location.replace(`/admin/events/${event.event_id}`)}
+                                                onClick={() => navigate(`/admin/events/${event.event_id}`)}
                                                 className="border-b border-[#1B222C]/6 last:border-0 cursor-pointer hover:bg-[#A9782F]/[0.04] transition-colors"
                                             >
                                                 <td className="px-5 py-3.5">
