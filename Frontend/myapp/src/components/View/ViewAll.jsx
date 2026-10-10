@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import NavBar from "../Nav/NavBar";
-import Footer from "../Footer/Footer";
 import fetchEventsByType from "./FetchEvent";
 import VerticalEventCard from "../Common/EventCard/VerticalEventCard";
 import Spinner from "../Spinner/Spinner";
@@ -9,135 +6,143 @@ import { getApiErrorMessage } from "../../api/errors.js";
 import { useAuth } from "../../context/AuthContext";
 import { fetchFavourites, toggleFavourite } from "../../api/favourites";
 
-const TYPE_LABELS = {
-    adventure: "Adventure activities",
-    trip: "Trips",
-    trek: "Treks",
-    peak: "Peak expeditions",
-    special_event: "Special events",
-    best_of_the_year: "Best of the year",
-};
-
 function ViewAll({ event_type, state }) {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [error, setError] = useState(null);
     const [favourites, setFavourites] = useState(new Set());
+
     const { user } = useAuth();
 
     useEffect(() => {
         let mounted = true;
+        setLoading(true);
 
         const load = async () => {
-            setLoading(true);
-            setError("");
             try {
+                setError(null);
                 const data = await fetchEventsByType(event_type, state);
-                let favouriteIds = [];
+
+                let favIds = [];
                 if (user) {
                     const token = await user.getIdToken();
-                    favouriteIds = await fetchFavourites(token);
+                    favIds = await fetchFavourites(token);
                 }
+
                 if (!mounted) return;
-                setEvents(Array.isArray(data) ? data : []);
-                setFavourites(new Set(favouriteIds));
+                setEvents(data);
+                setFavourites(new Set(favIds));
             } catch (err) {
-                if (mounted) setError(getApiErrorMessage(err, "We couldn't load these adventures."));
+                if (mounted) setError(getApiErrorMessage(err, "Failed to load events"));
             } finally {
                 if (mounted) setLoading(false);
             }
         };
 
         load();
-        return () => { mounted = false; };
+
+        return () => {
+            mounted = false;
+        };
     }, [event_type, state, user]);
 
     const handleToggleFavourite = async (eventId) => {
         if (!user) {
-            window.location.assign("/auth");
+            alert("Please login to save favourites.");
             return;
         }
 
-        const wasFavourite = favourites.has(eventId);
-        setFavourites((current) => {
-            const next = new Set(current);
-            if (wasFavourite) next.delete(eventId);
+        // Optimistic UI update
+        setFavourites((prev) => {
+            const next = new Set(prev);
+            if (next.has(eventId)) next.delete(eventId);
             else next.add(eventId);
             return next;
         });
 
         try {
             const token = await user.getIdToken();
-            const serverState = await toggleFavourite(eventId, token);
-            setFavourites((current) => {
-                const next = new Set(current);
-                if (serverState) next.add(eventId);
+            const isFavourite = await toggleFavourite(eventId, token);
+
+            // Reconcile with server result
+            setFavourites((prev) => {
+                const next = new Set(prev);
+                if (isFavourite) next.add(eventId);
                 else next.delete(eventId);
                 return next;
             });
         } catch (err) {
-            setFavourites((current) => {
-                const next = new Set(current);
-                if (wasFavourite) next.add(eventId);
-                else next.delete(eventId);
-                return next;
-            });
-            console.error("Could not update favourite", err);
+            console.error("Failed to toggle favourite from view-all", err);
         }
     };
 
-    const title = TYPE_LABELS[event_type] || event_type?.replaceAll("_", " ") || "Adventures";
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-20 min-h-screen">
+                <Spinner />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center text-red-500 py-20">
+                {error}
+            </div>
+        );
+    }
+
+    if (!events.length) {
+        return (
+            <div className="text-center text-gray-400 py-20">
+                No events found
+            </div>
+        );
+    }
 
     return (
-        <>
-            <NavBar />
-            <main className="app-page min-h-screen pb-16 pt-10 md:pb-12 md:pl-[76px]">
-            <section className="app-container">
-                <header className="mb-8 flex flex-col gap-4 border-b border-white/10 pb-7 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <p className="app-eyebrow">Curated for the curious</p>
-                        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{state ? `${state} ${title.toLowerCase()}` : title}</h1>
-                        <p className="app-muted mt-3 max-w-xl text-sm leading-6">Find your next escape, explore new places, and make your time outdoors count.</p>
-                    </div>
-                    <Link to="/" className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-sm font-medium text-white/75 transition hover:border-amber-300/40 hover:text-amber-200">
-                        <span aria-hidden="true">←</span> Back to home
-                    </Link>
-                </header>
+        <section className="bg-neutral-950 py-16 min-h-screen">
+            <div className="px-6">
 
-                {loading ? (
-                    <Spinner label="Finding adventures" className="min-h-[40vh]" />
-                ) : error ? (
-                    <div role="alert" className="app-panel mx-auto flex max-w-2xl flex-col items-center p-8 text-center sm:p-12">
-                        <p className="text-lg font-semibold text-white">We hit a small trail block.</p>
-                        <p className="app-muted mt-2 text-sm leading-6">{error}</p>
-                        <button type="button" onClick={() => window.location.reload()} className="app-button-primary mt-5">Try again</button>
-                    </div>
-                ) : events.length === 0 ? (
-                    <div className="app-panel mx-auto flex max-w-2xl flex-col items-center p-8 text-center sm:p-12">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-300/10 text-2xl text-amber-200" aria-hidden="true">✦</span>
-                        <h2 className="mt-4 text-xl font-semibold text-white">Something exciting is on the way</h2>
-                        <p className="app-muted mt-2 max-w-md text-sm leading-6">There aren't any adventures in this collection just yet. Check back soon or browse another category.</p>
-                        <Link to="/" className="app-button-primary mt-5">Explore homepage</Link>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
-                        {events.map((event) => {
-                            const eventId = event.event_uuid ?? event.id;
-                            return (
-                                <VerticalEventCard
-                                    key={eventId}
-                                    item={event}
-                                    isFavourite={favourites.has(eventId)}
-                                    onToggleFavourite={handleToggleFavourite}
-                                />
-                            );
-                        })}
-                    </div>
-                )}
-            </section>
-            </main>
-            <Footer />
-        </>
+                {/* Section Title */}
+                <div className="mb-10 w-full text-center">
+                    <h2 className="text-2xl md:text-3xl font-bebas text-white">
+                        Continue Exploring {state} {event_type}s
+                    </h2>
+                    <p className="text-gray-400 mt-1 text-sm md:text-base">
+                        Discover more adventures curated for you
+                    </p>
+
+                    {/* Subtle Divider */}
+                    <div className="mx-auto mt-3 h-1 w-12 bg-white/20 rounded-full" />
+                </div>
+
+                {/* Grid */}
+                <div
+                    className="
+        grid
+        grid-cols-2
+        sm:grid-cols-3
+        md:grid-cols-4
+        lg:grid-cols-5
+        gap-6
+        max-w-7xl mx-auto
+      "
+                >
+                    {events.map(event => (
+                        <VerticalEventCard
+                            key={event.id}
+                            item={event}
+                            isFavourite={favourites.has(event.event_uuid ?? event.id)}
+                            onToggleFavourite={handleToggleFavourite}
+                        />
+                    ))}
+                </div>
+
+            </div>
+        </section>
+
+
     );
 }
 
