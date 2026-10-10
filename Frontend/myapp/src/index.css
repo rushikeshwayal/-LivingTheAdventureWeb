@@ -1,45 +1,149 @@
 @import "tailwindcss";
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE/Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
+/* Living the Adventure — shared visual foundations */
+:root {
+  color-scheme: dark;
+  --app-bg: #090b0a;
+  --app-surface: #111512;
+  --app-surface-raised: #171c18;
+  --app-border: rgb(255 255 255 / 10%);
+  --app-text: #f5f5ef;
+  --app-muted: #a3aaa2;
+  --app-accent: #d6a85c;
+  --app-accent-strong: #efc778;
+  --app-radius: 1rem;
+  --app-shadow: 0 18px 50px rgb(0 0 0 / 24%);
 }
 
-.animate-scale-in {
-  animation: scale-in 0.2s ease-out forwards;
+html {
+  scroll-behavior: smooth;
+  background: var(--app-bg);
+  scrollbar-gutter: stable;
 }
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button, input, textarea, select {
+  font: inherit;
+}
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  text-underline-offset: 0.22em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--app-accent-strong);
+  outline-offset: 3px;
+}
+
+::selection {
+  color: #15120b;
+  background: var(--app-accent-strong);
+}
+
+.app-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 75% 0%, rgb(214 168 92 / 5%), transparent 36rem),
+    var(--app-bg);
+  color: var(--app-text);
+}
+
+.app-container {
+  width: min(100% - 2rem, 88rem);
+  margin-inline: auto;
+}
+
+.app-eyebrow {
+  color: var(--app-accent-strong);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.app-panel {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: linear-gradient(145deg, rgb(255 255 255 / 4%), rgb(255 255 255 / 1%)), var(--app-surface);
+  box-shadow: var(--app-shadow);
+}
+
+.app-muted {
+  color: var(--app-muted);
+}
+
+.app-link {
+  color: var(--app-muted);
+  transition: color 160ms ease;
+}
+
+.app-link:hover {
+  color: var(--app-accent-strong);
+}
+
+.app-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.7rem 1.1rem;
+  background: linear-gradient(110deg, #e8c078, #c99545);
+  color: #19150d;
+  font-size: 0.875rem;
+  font-weight: 750;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.app-button-primary:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.app-button-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes scale-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.animate-scale-in { animation: scale-in 0.2s ease-out forwards; }
 
 .font-bebas {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: "Bebas Neue", Impact, sans-serif;
   letter-spacing: 0.08em;
 }
+.font-cenzel-400 { font-family: "Cinzel", Georgia, serif; font-weight: 400; }
+.font-cenzel-600 { font-family: "Cinzel", Georgia, serif; font-weight: 600; }
+.font-cenzel-700 { font-family: "Cinzel", Georgia, serif; font-weight: 700; }
 
-.font-cenzel-400 {
-  font-family: 'Cinzel', serif;
-  font-weight: 400;
-
-}
-.font-cenzel-600 {
-  font-family: 'Cinzel', serif;
-  font-weight: 600;
-
-}
-
-.font-cenzel-700 {
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
