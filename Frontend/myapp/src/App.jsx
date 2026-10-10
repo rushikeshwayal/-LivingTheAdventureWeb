@@ -14,6 +14,7 @@ import PrivacyPolicyPage from './components/Legal/PrivacyPolicyPage.jsx';
 import TermsConditions from './components/Legal/TermsConditions.jsx';
 import RefundPolicy from './components/Legal/RefundPolicy.jsx';
 import HelpCenter from './components/Legal/HelpCenter.jsx';
+import MobilePreview from './components/MobilePreview.jsx';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home heroType="home" />} />
+          <Route path="/demo-preview" element={<MobilePreview />} />
           <Route path="/treks" element={<Home heroType="trek" />} />
           <Route path="/trips" element={<Home heroType="trip" />} />
           <Route path="/adventure-activity" element={<Home heroType="adventure" />} />
