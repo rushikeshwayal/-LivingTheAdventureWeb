@@ -1,109 +1,55 @@
-import { useState } from 'react';
-import NavLink from './NavLink';
-import { useAuth } from '../../context/AuthContext';
-import Logo from '../Common/Logo/logo';
-import {
-    FaHome,
-    FaSuitcaseRolling,
-    FaHiking,
-    FaCampground,
-    FaMountain,
-    FaTree,
-    FaUserCircle
-} from 'react-icons/fa';
+import { Link, useLocation } from "react-router-dom";
+import { FaHome, FaSuitcaseRolling, FaHiking, FaCampground, FaMountain, FaTree, FaUserCircle } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
+import Logo from "../Common/Logo/logo";
+
+const NAV_ITEMS = [
+    { to: "/", label: "Home", icon: FaHome },
+    { to: "/trips", label: "Trips", icon: FaSuitcaseRolling },
+    { to: "/treks", label: "Treks", icon: FaHiking },
+    { to: "/adventure-activity", label: "Activities", icon: FaCampground },
+    { to: "/peak-expedition", label: "Expeditions", icon: FaMountain },
+    { to: "/park-development-design", label: "Park design", icon: FaTree },
+];
 
 function NavBar() {
+    const { user } = useAuth();
+    const location = useLocation();
+    const profilePath = user ? "/profile" : "/auth";
 
-    const { user } = useAuth();   // ✅ move hook inside component
-
-    const [showOverlay, setShowOverlay] = useState(false);
+    const linkClass = (active) => [
+        "group relative flex items-center justify-center gap-3 rounded-xl px-3 py-3 text-sm transition-colors duration-200",
+        active ? "bg-amber-300/10 text-amber-200" : "text-white/60 hover:bg-white/[0.06] hover:text-white",
+    ].join(" ");
 
     return (
         <>
-            {/* Overlay */}
-            <div
-                className={`
-                    fixed inset-0 z-10
-                    pointer-events-none
-                    transition-opacity duration-300
-                    ${showOverlay ? 'opacity-60 bg-black' : 'opacity-0'}
-                `}
-            />
-
-            {/* Sidebar */}
-            <div
-                className="
-                fixed top-0 left-0 z-20
-                h-full
-                w-14 sm:w-16
-                flex flex-col justify-center items-center
-                py-3 sm:py-4
-                space-y-1.5 sm:space-y-2
-                bg-transparent
-                "
+            <Link
+                to="/"
+                aria-label="Living the Adventure home"
+                className="fixed left-1.5 top-3 z-50 hidden h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-[#101310]/90 shadow-lg backdrop-blur md:flex"
             >
-                <div className="absolute top-8 flex items-center justify-center w-28 h-28">
-                    <Logo />
+                <span className="text-xl font-black text-amber-300">L<span className="text-white">A</span></span>
+            </Link>
+
+            <nav aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#0c0f0d]/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:inset-y-0 md:left-0 md:right-auto md:flex md:w-[76px] md:flex-col md:items-center md:justify-center md:border-r md:border-t-0 md:bg-[#0c0f0d]/90 md:px-2 md:py-24">
+                <div className="grid grid-cols-7 gap-1 md:flex md:w-full md:flex-col md:gap-2">
+                    {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+                        const active = to === "/" ? location.pathname === "/" : location.pathname === to || location.pathname.startsWith(`${to}/`);
+                        return (
+                            <Link key={to} to={to} aria-label={label} aria-current={active ? "page" : undefined} title={label} className={linkClass(active)}>
+                                <Icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                                <span className="hidden text-xs md:inline">{label}</span>
+                                {active && <span className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-amber-300 md:bottom-auto md:left-0 md:top-1/2 md:h-5 md:w-0.5 md:-translate-y-1/2 md:translate-x-0" />}
+                            </Link>
+                        );
+                    })}
+                    <Link to={profilePath} aria-label="Profile" title="Profile" aria-current={location.pathname === profilePath ? "page" : undefined} className={linkClass(location.pathname === profilePath)}>
+                        <FaUserCircle className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                        <span className="hidden text-xs md:inline">Profile</span>
+                    </Link>
                 </div>
-
-                <a href="/">
-                    <NavLink
-                        icon={<FaHome className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
-                        label="Home"
-                        onHover={setShowOverlay}
-                    />
-                </a>
-
-                <a href="/trips">
-                    <NavLink
-                        icon={<FaSuitcaseRolling className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
-                        label="Trips"
-                        onHover={setShowOverlay}
-                    />
-                </a>
-
-                <a href="/treks">
-                    <NavLink
-                        icon={<FaHiking className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
-                        label="Treks"
-                        onHover={setShowOverlay}
-                    />
-                </a>
-
-                <a href="/adventure-activity">
-                    <NavLink
-                        icon={<FaCampground className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
-                        label="Adventure Activity"
-                        onHover={setShowOverlay}
-                    />
-                </a>
-
-                <a href="/peak-expedition">
-                    <NavLink
-                        icon={<FaMountain className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
-                        label="Peak Expedition"
-                        onHover={setShowOverlay}
-                    />
-                </a>
-
-                <a href="/park-development-design">
-                    <NavLink
-                        icon={<FaTree className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
-                        label="Park Development and Design"
-                        onHover={setShowOverlay}
-                    />
-                </a>
-
-                {/* Profile link */}
-                <a href={user ? "/profile" : "/auth"}>
-                    <NavLink
-                        icon={<FaUserCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
-                        label="Profile"
-                        onHover={setShowOverlay}
-                    />
-                </a>
-
-            </div>
+            </nav>
         </>
     );
 }
