@@ -14,6 +14,7 @@ from hero.service.service import (
     update_hero,
     delete_hero,
     get_heroes_by_type,
+    serialize_hero_media,
 )
 
 from hero.schema.schema import HeroOut, HeroCreate, HeroUpdate
@@ -28,7 +29,7 @@ def list_heroes(
     limit: int = 50,
     db: Session = Depends(get_db),
 ):
-    return get_heroes(db, skip=skip, limit=limit)
+    return [serialize_hero_media(hero) for hero in get_heroes(db, skip=skip, limit=limit)]
 
 
 @router.get("/{hero_id}", response_model=HeroOut)
@@ -44,7 +45,7 @@ def read_hero(
             detail="Hero not found",
         )
 
-    return db_hero
+    return serialize_hero_media(db_hero)
 
 
 @router.get("/by-uuid/{hero_uuid}", response_model=HeroOut)
@@ -60,7 +61,7 @@ def read_hero_by_uuid(
             detail="Hero not found",
         )
 
-    return db_hero
+    return serialize_hero_media(db_hero)
 
 
 @router.get("/by-type/{hero_type}", response_model=List[HeroOut])
@@ -76,7 +77,7 @@ def read_heroes_by_type(
             detail=f"No heroes found for type '{hero_type}'",
         )
 
-    return heroes
+    return [serialize_hero_media(hero) for hero in heroes]
 
 
 @router.post("/", response_model=HeroOut, status_code=status.HTTP_200_OK)
@@ -97,7 +98,7 @@ def create_new_hero(
             description=f"Hero '{created.title}' was created successfully",
         )
 
-        return created
+        return serialize_hero_media(created)
 
     except Exception:
         db.rollback()
@@ -142,7 +143,7 @@ def update_existing_hero(
             description=f"Hero '{updated.title}' was updated successfully",
         )
 
-        return updated
+        return serialize_hero_media(updated)
 
     except Exception:
         db.rollback()
