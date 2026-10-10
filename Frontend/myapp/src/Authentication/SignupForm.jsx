@@ -1,19 +1,23 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
-import { auth } from "./firebase";
-import { apiUrl } from "../api/config.js";
-import { FaUser, FaPhone, FaKey, FaSpinner, FaCheckCircle, FaArrowRight } from "react-icons/fa";
-import Logo from "../components/Common/Logo/logo.jsx";
 import { Link } from "react-router-dom";
-export default function Signup() {
-    const [form, setForm] = useState({
-        first_name: "",
-        last_name: "",
-        phone: "",
-        otp: ""
-    });
+import { FaArrowRight, FaCheckCircle, FaKey, FaPhone, FaSpinner, FaUser } from "react-icons/fa";
+import { auth as firebaseAuth } from "./firebase";
+import { apiUrl } from "../api/config.js";
+import AuthLayout from "./AuthLayout.jsx";
 
+const normalizePhone = (phone) => {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) return `+91${digits}`;
+    if (digits.length === 12 && digits.startsWith("91")) return `+${digits}`;
+    throw new Error("Enter a valid 10-digit Indian mobile number.");
+};
+
+const inputClass = "w-full rounded-xl border border-white/15 bg-black/35 py-3.5 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-300/70 focus:ring-4 focus:ring-amber-300/10 disabled:cursor-not-allowed disabled:opacity-50";
+
+export default function SignupForm() {
+    const [form, setForm] = useState({ first_name: "", last_name: "", phone: "", otp: "" });
     const [otpSent, setOtpSent] = useState(false);
     const [confirmation, setConfirmation] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -21,395 +25,183 @@ export default function Signup() {
     const [success, setSuccess] = useState("");
     const [timer, setTimer] = useState(0);
 
-    // Timer countdown
     useEffect(() => {
-        let interval;
-        if (timer > 0) {
-            interval = setInterval(() => {
-                setTimer((prev) => prev - 1);
-            }, 1000);
-        }
-        return () => clearInterval(interval);
+        if (timer <= 0) return undefined;
+        const interval = window.setInterval(() => setTimer((current) => Math.max(0, current - 1)), 1000);
+        return () => window.clearInterval(interval);
     }, [timer]);
 
-    // Auto-focus OTP input when sent
     useEffect(() => {
-        if (otpSent) {
-            document.getElementById("otp-input")?.focus();
-        }
+        if (otpSent) document.getElementById("signup-otp-input")?.focus();
     }, [otpSent]);
 
-    const normalizePhone = (phone) => {
-        const digits = phone.replace(/\D/g, "");
-        if (digits.length === 10) return `+91${digits}`;
-        if (digits.length === 12 && digits.startsWith("91")) return `+${digits}`;
-        throw new Error("Enter valid Indian phone number");
-    };
-
     const setupRecaptcha = () => {
-        if (window.recaptchaVerifier) {
-            window.recaptchaVerifier.clear();
-        }
-        window.recaptchaVerifier = new RecaptchaVerifier(
-            auth,
-            "recaptcha-container",
-            { size: "invisible" }
-        );
+        if (window.recaptchaVerifier) window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, "recaptcha-container", { size: "invisible" });
     };
 
     const sendOtp = async () => {
+        setError("");
+        setSuccess("");
+        if (!form.first_name.trim() || !form.last_name.trim()) {
+            setError("Enter your first and last name to continue.");
+            return;
+        }
+
+        let cleanPhone;
         try {
-            setError("");
-            setSuccess("");
-            setLoading(true);
-
-            // Validation
-            if (!form.first_name.trim()) {
-                setError("First name is required");
-                setLoading(false);
-                return;
-            }
-            if (!form.last_name.trim()) {
-                setError("Last name is required");
-                setLoading(false);
-                return;
-            }
-            if (!form.phone || form.phone.trim().length < 10) {
-                setError("Please enter a valid phone number");
-                setLoading(false);
-                return;
-            }
-
-            setupRecaptcha();
-
-            const confirmationResult = await signInWithPhoneNumber(
-                auth,
-                normalizePhone(form.phone),
-                window.recaptchaVerifier
-            );
-
-            setConfirmation(confirmationResult);
-            setOtpSent(true);
-            setTimer(60);
-            setSuccess("OTP sent successfully to your phone");
-
+            cleanPhone = normalizePhone(form.phone);
         } catch (err) {
-            console.error(err);
+            setError(err.message);
+            return;
+        }
 
-            if (err.code === "auth/invalid-phone-number") {
-                setError("Invalid phone number format");
-            } else if (err.code === "auth/too-many-requests") {
-                setError("Too many requests. Please try again later.");
-            } else if (err.message?.includes("valid Indian")) {
-                setError(err.message);
-            } else {
-                setError("Failed to send OTP. Please try again.");
-            }
+        setLoading(true);
+        try {
+            setupRecaptcha();
+            const result = await signInWithPhoneNumber(firebaseAuth, cleanPhone, window.recaptchaVerifier);
+            setConfirmation(result);
+            setOtpSent(true);
+            setForm((current) => ({ ...current, otp: "" }));
+            setTimer(60);
+            setSuccess("Verification code sent. Check your messages.");
+        } catch (err) {
+            console.error("Unable to send signup OTP", err);
+            if (err.code === "auth/invalid-phone-number") setError("That phone number doesn't look valid. Check it and try again.");
+            else if (err.code === "auth/too-many-requests") setError("Too many attempts. Please wait a little before trying again.");
+            else setError(err.message?.includes("valid 10-digit") ? err.message : "We couldn't send your code. Please try again.");
         } finally {
             setLoading(false);
         }
     };
 
     const verifyOtpAndSignup = async () => {
+        setError("");
+        setSuccess("");
+        if (form.otp.length !== 6) {
+            setError("Enter the 6-digit verification code.");
+            return;
+        }
+        if (!confirmation) {
+            setError("This verification session has expired. Request a new code.");
+            return;
+        }
+
+        setLoading(true);
         try {
-            setError("");
-            setSuccess("");
-            setLoading(true);
-
-            if (!form.otp || form.otp.length !== 6) {
-                setError("Please enter a valid 6-digit OTP");
-                setLoading(false);
-                return;
-            }
-
-            if (!confirmation) {
-                setError("Session expired. Please resend OTP.");
-                setLoading(false);
-                return;
-            }
-
             const result = await confirmation.confirm(form.otp);
             const token = await result.user.getIdToken();
+            await axios.post(apiUrl("/auth/signup/complete"), {
+                first_name: form.first_name.trim(),
+                last_name: form.last_name.trim(),
+            }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
 
-            await axios.post(
-                apiUrl("/auth/signup/complete"),
-                {
-                    first_name: form.first_name,
-                    last_name: form.last_name
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            setSuccess("Account created successfully! Redirecting...");
-
-            setTimeout(() => {
-                window.location.href = "/";
-            }, 1000);
-
+            setSuccess("Your account is ready. Taking you back to the adventures…");
+            window.setTimeout(() => window.location.assign("/"), 1000);
         } catch (err) {
-            console.error(err);
-
-            if (err.code === "auth/invalid-verification-code") {
-                setError("Invalid OTP. Please check and try again.");
-            } else if (err.code === "auth/code-expired") {
-                setError("OTP expired. Please resend OTP.");
-            } else if (err.response?.status === 409) {
-                setError("Account already exists. Please login instead.");
-            } else {
-                setError("Signup failed. Please try again.");
-            }
+            console.error("Unable to complete signup", err);
+            if (err.code === "auth/invalid-verification-code") setError("That code is incorrect. Check it and try again.");
+            else if (err.code === "auth/code-expired") setError("That code has expired. Request a new one.");
+            else if (err.response?.status === 409) {
+                setError("An account already exists for this number. Sign in instead.");
+            } else setError(err.response?.data?.detail || "We couldn't create your account. Please try again.");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleResend = () => {
-        setForm({ ...form, otp: "" });
+    const resendOtp = async () => {
         setOtpSent(false);
         setConfirmation(null);
-        sendOtp();
+        setForm((current) => ({ ...current, otp: "" }));
+        await sendOtp();
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        if (loading) return;
+        if (otpSent) verifyOtpAndSignup();
+        else sendOtp();
     };
 
     return (
-        <div>
-            <div className="absolute pt-5 z-20">
-                <Link to="/">
-                    <Logo />
-                </Link>
-            </div>
-            <div>
-                <div className="fixed" >
-                    <img src="https://images.pexels.com/photos/29731433/pexels-photo-29731433.jpeg" />
+        <AuthLayout eyebrow="Join the journey" title="Make room for adventure." description="Create your account with your name and mobile number. We'll verify your number with a one-time code.">
+            {success && (
+                <div role="status" className="mb-5 flex items-start gap-3 rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-3.5 text-sm text-emerald-100">
+                    <FaCheckCircle className="mt-0.5 shrink-0 text-emerald-300" />
+                    <span>{success}</span>
                 </div>
-                <div className="min-h-screen flex items-center justify-center px-4 py-8">
+            )}
+            {error && (
+                <div role="alert" className="mb-5 rounded-xl border border-rose-400/25 bg-rose-400/10 p-3.5 text-sm leading-5 text-rose-100">
+                    {error}
+                    {error.includes("Sign in instead") && (
+                        <Link to="/auth" className="ml-1 font-semibold text-amber-200 underline underline-offset-4 hover:text-amber-100">Sign in</Link>
+                    )}
+                </div>
+            )}
 
-
-                    <div id="recaptcha-container"></div>
-
-                    {/* Background decorative elements */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute top-1/4 -left-48 w-96 h-96 bg-black-500/10 rounded-full blur-3xl"></div>
-                        <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-                    </div>
-
-                    <div className="w-full max-w-md relative z-10">
-
-                        {/* Card */}
-                        <div className="bg-white/10 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.45)] p-5 rounded-2xl">
-
-                            {/* Header */}
-                            <div className="text-center mb-8">
-                                <h1 className="text-3xl font-bold text-black mb-2">Create Account</h1>
-                                <p className="text-black-400 text-sm">Join us for amazing adventures</p>
-                            </div>
-
-                            {/* Success Message */}
-                            {success && (
-                                <div className="mb-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg flex items-center gap-3 animate-fade-in">
-                                    <FaCheckCircle className="text-green-400 shrink-0" />
-                                    <p className="text-green-300 text-sm">{success}</p>
-                                </div>
-                            )}
-
-                            {/* Error Message */}
-                            {error && (
-                                <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg animate-shake">
-                                    <p className="text-red-300 text-sm">{error}</p>
-                                </div>
-                            )}
-
-                            {/* Form Fields */}
-                            <div className="space-y-4 mb-6">
-
-                                {/* First Name */}
-                                <div>
-                                    <label className="block text-sm font-medium text-black-300 mb-2">
-                                        First Name
-                                    </label>
-                                    <div className="relative">
-                                        <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
-                                        <input
-                                            type="text"
-                                            placeholder="Enter your first name"
-                                            value={form.first_name}
-                                            onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                                            disabled={otpSent}
-                                            className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Last Name */}
-                                <div>
-                                    <label className="block text-sm font-medium text-black-300 mb-2">
-                                        Last Name
-                                    </label>
-                                    <div className="relative">
-                                        <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
-                                        <input
-                                            type="text"
-                                            placeholder="Enter your last name"
-                                            value={form.last_name}
-                                            onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                                            disabled={otpSent}
-                                            className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Phone */}
-                                <div>
-                                    <label className="block text-sm font-medium text-black-300 mb-2">
-                                        Phone Number
-                                    </label>
-                                    <div className="relative">
-                                        <FaPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
-                                        <input
-                                            type="tel"
-                                            placeholder="Enter your phone number"
-                                            value={form.phone}
-                                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                            disabled={otpSent}
-                                            className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                            maxLength="10"
-                                        />
-                                    </div>
-                                    <p className="text-xs text-black-500 mt-1.5">Enter 10-digit Indian mobile number</p>
-                                </div>
-
-                                {/* OTP Input */}
-                                {otpSent && (
-                                    <div className="animate-slide-down">
-                                        <label className="block text-sm font-medium text-black-300 mb-2">
-                                            Verification Code
-                                        </label>
-                                        <div className="relative">
-                                            <FaKey className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
-                                            <input
-                                                id="otp-input"
-                                                type="text"
-                                                placeholder="Enter 6-digit OTP"
-                                                value={form.otp}
-                                                onChange={(e) => setForm({ ...form, otp: e.target.value.replace(/\D/g, "") })}
-                                                className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all tracking-widest text-center text-lg font-semibold"
-                                                maxLength="6"
-                                                autoComplete="one-time-code"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Main Action Button */}
-                            <button
-                                onClick={otpSent ? verifyOtpAndSignup : sendOtp}
-                                disabled={
-                                    loading ||
-                                    (!otpSent && (!form.first_name || !form.last_name || !form.phone)) ||
-                                    (otpSent && form.otp.length !== 6)
-                                }
-                                className="w-full bg-gradient-to-r bg-black text-white py-3.5 rounded-lg font-semibold hover:from-black-700 hover:to-black-600 disabled:opacity-90 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 group"
-                            >
-                                {loading ? (
-                                    <>
-                                        <FaSpinner className="animate-spin" />
-                                        <span>Please wait...</span>
-                                    </>
-                                ) : otpSent ? (
-                                    <>
-                                        <span>Verify & Create Account</span>
-                                        <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Send OTP</span>
-                                        {/* <FaArrowRight className="group-hover:translate-x-1 transition-transform" /> */}
-                                    </>
-                                )}
-                            </button>
-
-                            {/* Resend OTP */}
-                            {otpSent && (
-                                <div className="mt-4 text-center animate-fade-in">
-                                    {timer > 0 ? (
-                                        <p className="text-sm text-black-400">
-                                            Resend OTP in <span className="text-black-400 font-semibold">{timer}s</span>
-                                        </p>
-                                    ) : (
-                                        <button
-                                            onClick={handleResend}
-                                            disabled={loading}
-                                            className="text-sm text-black-400 hover:text-black-300 font-medium disabled:opacity-50 transition-colors"
-                                        >
-                                            Resend OTP
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Divider */}
-                            <div className="flex items-center gap-4 my-6">
-                                <div className="flex-1 h-px bg-black-700"></div>
-                                <span className="text-black-500 text-sm">OR</span>
-                                <div className="flex-1 h-px bg-black-700"></div>
-                            </div>
-
-                            {/* Login Link */}
-                            <p className="text-center text-sm text-black-400">
-                                Already have an account?{" "}
-                                <a href="/auth" className="text-black-400 hover:text-black-300 font-medium transition-colors">
-                                    Login
-                                </a>
-                            </p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label htmlFor="signup-first-name" className="mb-2 block text-sm font-medium text-white/85">First name</label>
+                        <div className="relative">
+                            <FaUser aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-amber-300/80" />
+                            <input id="signup-first-name" type="text" autoComplete="given-name" placeholder="First name" value={form.first_name} onChange={(event) => setForm((current) => ({ ...current, first_name: event.target.value }))} disabled={otpSent || loading} className={inputClass} required />
                         </div>
-
-                        {/* Footer */}
-                        <p className="text-center text-xs text-white mt-6">
-                            By creating an account, you agree to our Terms of Service and Privacy Policy
-                        </p>
                     </div>
-
-                    <style jsx>{`
-                @keyframes fade-in {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                
-                @keyframes slide-down {
-                    from {
-                        opacity: 0;
-                        transform: translateY(-10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                @keyframes shake {
-                    0%, 100% { transform: translateX(0); }
-                    25% { transform: translateX(-5px); }
-                    75% { transform: translateX(5px); }
-                }
-                
-                .animate-fade-in {
-                    animation: fade-in 0.3s ease-out;
-                }
-                
-                .animate-slide-down {
-                    animation: slide-down 0.3s ease-out;
-                }
-                
-                .animate-shake {
-                    animation: shake 0.3s ease-out;
-                }
-            `}</style>
+                    <div>
+                        <label htmlFor="signup-last-name" className="mb-2 block text-sm font-medium text-white/85">Last name</label>
+                        <div className="relative">
+                            <FaUser aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-amber-300/80" />
+                            <input id="signup-last-name" type="text" autoComplete="family-name" placeholder="Last name" value={form.last_name} onChange={(event) => setForm((current) => ({ ...current, last_name: event.target.value }))} disabled={otpSent || loading} className={inputClass} required />
+                        </div>
+                    </div>
                 </div>
+
+                <div>
+                    <label htmlFor="signup-phone" className="mb-2 block text-sm font-medium text-white/85">Mobile number</label>
+                    <div className="relative">
+                        <FaPhone aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-amber-300/80" />
+                        <input id="signup-phone" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="10-digit mobile number" value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value.replace(/\D/g, "").slice(0, 10) }))} disabled={otpSent || loading} maxLength={10} className={inputClass} required aria-describedby="signup-phone-help" />
+                    </div>
+                    <p id="signup-phone-help" className="mt-2 text-xs text-white/45">India (+91) · Use a number you can receive messages on.</p>
+                </div>
+
+                {otpSent && (
+                    <div>
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                            <label htmlFor="signup-otp-input" className="text-sm font-medium text-white/85">Verification code</label>
+                            <button type="button" onClick={() => { setOtpSent(false); setConfirmation(null); setForm((current) => ({ ...current, otp: "" })); setError(""); setSuccess(""); }} className="text-xs font-medium text-amber-200 transition hover:text-amber-100">Edit details</button>
+                        </div>
+                        <div className="relative">
+                            <FaKey aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-amber-300/80" />
+                            <input id="signup-otp-input" type="text" inputMode="numeric" autoComplete="one-time-code" placeholder="Enter 6-digit code" value={form.otp} onChange={(event) => setForm((current) => ({ ...current, otp: event.target.value.replace(/\D/g, "").slice(0, 6) }))} maxLength={6} className={inputClass + " text-center tracking-[0.45em]"} />
+                        </div>
+                        <div className="mt-3 text-xs text-white/55">
+                            {timer > 0 ? <>You can request another code in <span className="font-semibold text-white/80">{timer}s</span>.</> : (
+                                <button type="button" onClick={resendOtp} disabled={loading} className="font-semibold text-amber-200 transition hover:text-amber-100 disabled:opacity-50">Resend code</button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                <button type="submit" disabled={loading || (!otpSent && (!form.first_name.trim() || !form.last_name.trim() || form.phone.length !== 10)) || (otpSent && form.otp.length !== 6)} className="group mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-300 to-orange-300 px-5 py-3.5 font-bold text-[#17130c] shadow-lg shadow-amber-950/20 transition duration-200 hover:from-amber-200 hover:to-orange-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/25 disabled:cursor-not-allowed disabled:opacity-45">
+                    {loading ? <><FaSpinner className="animate-spin" /> Please wait…</> : otpSent ? <>Verify and create account <FaArrowRight className="transition-transform group-hover:translate-x-1" /></> : <>Send verification code <FaArrowRight className="transition-transform group-hover:translate-x-1" /></>}
+                </button>
+            </form>
+
+            <div className="my-6 flex items-center gap-3">
+                <span className="h-px flex-1 bg-white/10" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/35">Already a member?</span>
+                <span className="h-px flex-1 bg-white/10" />
             </div>
-        </div>
+            <p className="text-center text-sm text-white/65">
+                Welcome back.{" "}
+                <Link to="/auth" className="font-semibold text-amber-200 underline decoration-amber-200/40 underline-offset-4 transition hover:text-amber-100">Sign in</Link>
+            </p>
+        </AuthLayout>
     );
 }
