@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import API from "../api";
 import Navbar from "../components/Navbar/NavBar";
 import ImageUploadField from "./Imageuploadfield";
@@ -108,10 +108,68 @@ const inputClass =
 const textareaClass = inputClass + " resize-y min-h-[90px]";
 
 export default function CreateEventPage() {
+    const { eventId } = useParams();
+    const isEditing = Boolean(eventId);
     const [form, setForm] = useState(EMPTY_FORM);
+    const [eventRecordId, setEventRecordId] = useState(null);
+    const [loadingEvent, setLoadingEvent] = useState(Boolean(eventId));
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!eventId) return undefined;
+
+        let cancelled = false;
+
+        async function loadEvent() {
+            setLoadingEvent(true);
+            setError("");
+
+            try {
+                const response = await API.get(`/events/by-uuid/${eventId}`);
+                const event = response.data;
+
+                if (cancelled) return;
+
+                setEventRecordId(event.id);
+                setForm({
+                    ...EMPTY_FORM,
+                    ...event,
+                    age_requirement: event.age_requirement ?? "",
+                    duration_days: event.duration_days ?? "",
+                    duration_nights: event.duration_nights ?? "",
+                    max_participants_allowed: event.max_participants_allowed ?? "",
+                    highlights: event.highlights || [],
+                    gallery_image_urls: event.gallery_image_urls || [],
+                    included_services: event.included_services || [],
+                    excluded_services: event.excluded_services || [],
+                    seo_tags: event.seo_tags || [],
+                    cover_image_url: event.cover_image_url || "",
+                    poster_horizontal_1_url: event.poster_horizontal_1_url || "",
+                    poster_horizontal_2_url: event.poster_horizontal_2_url || "",
+                    poster_vertical_3_url: event.poster_vertical_3_url || "",
+                    promo_video_url: event.promo_video_url || "",
+                });
+            } catch (loadError) {
+                if (!cancelled) {
+                    setError(
+                        loadError.response?.data?.detail ||
+                        loadError.response?.data?.message ||
+                        "Couldn't load this event for editing."
+                    );
+                }
+            } finally {
+                if (!cancelled) setLoadingEvent(false);
+            }
+        }
+
+        loadEvent();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [eventId]);
 
     const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
     const setList = (key) => (values) => setForm((f) => ({ ...f, [key]: values }));
@@ -139,14 +197,17 @@ export default function CreateEventPage() {
             }
         });
         try {
-            const res = await API.post("/events/", payload, {
-                headers: getAuthHeaders(),
-            });
-            const created = res.data;
-            window.location.replace(
-                created?.event_id
-                    ? `/admin/events/${created.event_id}`
-                    : "/admin/events"
+            const config = { headers: getAuthHeaders() };
+            const res = isEditing
+                ? await API.put(`/events/${eventRecordId}`, payload, config)
+                : await API.post("/events/", payload, config);
+            const saved = res.data;
+
+            navigate(
+                saved?.event_id
+                    ? `/admin/events/${saved.event_id}`
+                    : "/admin/home",
+                { replace: true }
             );
         } catch (err) {
             setError(
@@ -166,7 +227,7 @@ export default function CreateEventPage() {
                     <p className="text-[11px] font-medium tracking-[0.3em] text-[#4B5842] uppercase mb-1">
                         Basecamp
                     </p>
-                    <h1 className="text-3xl font-serif text-[#1B222C]">New event</h1>
+                    <h1 className="text-3xl font-serif text-[#1B222C]">{isEditing ? "Edit event" : "New event"}</h1>
                 </div>
 
                 {error && (
@@ -175,6 +236,9 @@ export default function CreateEventPage() {
                     </div>
                 )}
 
+                {loadingEvent ? (
+                    <div className="bg-white border border-[#1B222C]/8 p-6 text-sm text-[#6E6A5E]">Loading event details…</div>
+                ) : (
                 <form onSubmit={handleSubmit}>
                     <Section title="Basics" description="What the event is and how it's categorized.">
                         <Field label="Title" full>
@@ -488,7 +552,7 @@ export default function CreateEventPage() {
                     <div className="flex items-center justify-end gap-3 mt-6 mb-16">
                         <button
                             type="button"
-                            onClick={() => window.location.replace("/admin/events")}
+                            onClick={() => navigate("/admin/home")}
                             className="px-5 py-2.5 text-sm font-medium text-[#1B222C] hover:text-[#9C4A3C] transition-colors"
                         >
                             Cancel
@@ -501,10 +565,11 @@ export default function CreateEventPage() {
                             {submitting && (
                                 <span className="h-3.5 w-3.5 rounded-full border-2 border-[#F5F2E9]/40 border-t-[#F5F2E9] animate-spin" />
                             )}
-                            {submitting ? "Publishing" : "Create event"}
+                            {submitting ? (isEditing ? "Saving changes" : "Publishing") : (isEditing ? "Save changes" : "Create event")}
                         </button>
                     </div>
                 </form>
+                )}
             </main>
         </div>
     );
