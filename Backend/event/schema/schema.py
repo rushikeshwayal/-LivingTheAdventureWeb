@@ -1,7 +1,9 @@
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
-from datetime import datetime
-from pydantic import BaseModel, AnyUrl
+
+from pydantic import AnyUrl, BaseModel, ConfigDict
+
 
 class EventBase(BaseModel):
     title: str
@@ -41,16 +43,14 @@ class EventBase(BaseModel):
     seo_title: Optional[str] = None
     seo_description: Optional[str] = None
 
-    # ✅ Add these 3 fields
     status: Optional[str] = None
     state: Optional[str] = None
     label: Optional[str] = None
 
 
-
-
 class EventCreate(EventBase):
     pass
+
 
 class EventUpdate(BaseModel):
     title: Optional[str] = None
@@ -96,5 +96,4 @@ class EventOut(EventBase):
     state: Optional[str] = None
     label: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
