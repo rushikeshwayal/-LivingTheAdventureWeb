@@ -13,6 +13,7 @@ from event.service.service import (
     get_events_by_type,
     update_event,
     delete_event,
+    serialize_event_media,
 )
 
 from event.schema.schema import EventOut, EventCreate, EventUpdate
@@ -28,7 +29,7 @@ def list_events(
     limit: int = 50,
     db: Session = Depends(get_db),
 ):
-    return get_events(db, skip=skip, limit=limit)
+    return [serialize_event_media(event) for event in get_events(db, skip=skip, limit=limit)]
 
 
 @router.get("/{event_id}", response_model=EventOut)
@@ -44,7 +45,7 @@ def read_event(
             detail="Event not found",
         )
 
-    return db_event
+    return serialize_event_media(db_event)
 
 
 @router.get("/by-uuid/{event_uuid}", response_model=EventOut)
@@ -60,7 +61,7 @@ def read_event_by_uuid(
             detail="Event not found",
         )
 
-    return db_event
+    return serialize_event_media(db_event)
 
 
 @router.post(
@@ -85,7 +86,7 @@ def create_new_event(
             description=f"Event '{created.title}' was created successfully",
         )
 
-        return created
+        return serialize_event_media(created)
 
     except Exception:
         db.rollback()
@@ -130,7 +131,7 @@ def update_existing_event(
             description=f"Event '{updated.title}' was updated successfully",
         )
 
-        return updated
+        return serialize_event_media(updated)
 
     except Exception:
         db.rollback()
@@ -211,4 +212,4 @@ def read_events_by_type(
             detail="No events found for this type",
         )
 
-    return events
+    return [serialize_event_media(event) for event in events]

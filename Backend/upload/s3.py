@@ -56,3 +56,41 @@ def read_url(key: str, expires_in: int = 3600) -> str:
         Params={"Bucket": bucket(), "Key": key},
         ExpiresIn=expires_in,
     )
+
+
+def private_media_url(value: str | None, expires_in: int = 3300) -> str | None:
+    """Return a short-lived read URL for objects in this private S3 bucket.
+
+    Non-S3 URLs are preserved. Stored database values remain canonical URLs;
+    only API response values are signed.
+    """
+    if not value:
+        return value
+
+    from urllib.parse import unquote, urlparse
+
+    parsed = urlparse(str(value))
+    bucket_name = _bucket_name()
+    region = _region()
+    allowed_hosts = {
+        f"{bucket_name}.s3.{region}.amazonaws.com",
+        f"{bucket_name}.s3.amazonaws.com",
+        f"s3.{region}.amazonaws.com",
+    }
+
+    if parsed.hostname not in allowed_hosts:
+        return str(value)
+
+    path = unquote(parsed.path.lstrip("/"))
+    if parsed.hostname == f"s3.{region}.amazonaws.com":
+        parts = path.split("/", 1)
+        if len(parts) != 2 or parts[0] != bucket_name:
+            return str(value)
+        key = parts[1]
+    else:
+        key = path
+
+    if not key:
+        return str(value)
+
+    return read_url(key, expires_in=expires_in)

@@ -4,7 +4,8 @@ from typing import List, Optional
 from fastapi import HTTPException, status
 
 from hero.model.model import Hero
-from hero.schema.schema import HeroCreate, HeroUpdate
+from hero.schema.schema import HeroCreate, HeroOut, HeroUpdate
+from upload.s3 import private_media_url
 
 def get_heroes(db: Session, skip: int = 0, limit: int = 100) -> List[Hero]:
     return db.query(Hero).offset(skip).limit(limit).all()
@@ -89,3 +90,14 @@ def get_heroes_by_type(db: Session, hero_type: str) -> List[Hero]:
         .filter(Hero.hero_type.ilike(normalized_type))
         .all()
     )
+
+
+
+def serialize_hero_media(hero: Hero) -> dict:
+    """Serialize a hero with short-lived URLs for private S3 media."""
+    data = HeroOut.from_orm(hero).dict()
+
+    for field in ("video_url", "thumbnail_image_url"):
+        data[field] = private_media_url(data.get(field))
+
+    return data
