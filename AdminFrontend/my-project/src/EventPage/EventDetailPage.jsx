@@ -189,7 +189,7 @@ export default function EventDetailPage() {
                     <div className="pl-4 py-3 border-l-2 border-[#9C4A3C] bg-[#9C4A3C]/[0.06] mb-6">
                         <p className="text-sm text-[#9C4A3C]">{error || "Event not found."}</p>
                     </div>
-                    <Link to="/admin/events" className="text-sm text-[#1B222C] hover:text-[#A9782F]">
+                    <Link to="/admin/home" className="text-sm text-[#1B222C] hover:text-[#A9782F]">
                         ← Back to events
                     </Link>
                 </main>
@@ -219,7 +219,7 @@ export default function EventDetailPage() {
                         Events
                     </Link>
                     <button
-                        onClick={() => window.location.replace(`/admin/events/${event.event_id}/edit`)}
+                        onClick={() => navigate(`/admin/events/${event.event_id}/edit`)}
                         className="bg-[#1B222C] hover:bg-[#A9782F] text-[#F5F2E9] text-sm font-medium px-5 py-2.5 rounded-sm transition-colors"
                     >
                         Edit event

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./login/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./Dashboard/Dashboard"
@@ -44,6 +44,15 @@ function App() {
         }
         />
 
+        <Route path="/admin/events" element={<Navigate to="/admin/home" replace />} />
+
+        <Route path="/admin/events/:eventId/edit" element={
+          <ProtectedRoute>
+            <CreateEventPage />
+          </ProtectedRoute>
+        }
+        />
+
         <Route path="/admin/events/new" element={
           <ProtectedRoute>
             <CreateEventPage />
@@ -82,6 +91,13 @@ function App() {
         }
         />
 
+        <Route path="/admin/settings" element={
+          <ProtectedRoute>
+            <ComingSoonPage pageName="Settings" />
+          </ProtectedRoute>
+        }
+        />
+
         <Route path="/admin/users" element={
           <ProtectedRoute>
             <UsersListPage />
@@ -90,6 +106,7 @@ function App() {
         />
 
 
+        <Route path="*" element={<Navigate to="/admin/home" replace />} />
       </Routes>
     </BrowserRouter >
   );
