@@ -74,4 +74,18 @@ def delete_hero(db: Session, db_obj: Hero):
     return
 
 def get_heroes_by_type(db: Session, hero_type: str) -> List[Hero]:
-    return db.query(Hero).filter(Hero.hero_type == hero_type).all()
+    """Return heroes matching a type without case-sensitive mismatches.
+
+    The admin form may save values such as "Home", while the public
+    frontend requests the same category as "home".
+    """
+    normalized_type = hero_type.strip()
+
+    if not normalized_type:
+        return []
+
+    return (
+        db.query(Hero)
+        .filter(Hero.hero_type.ilike(normalized_type))
+        .all()
+    )
