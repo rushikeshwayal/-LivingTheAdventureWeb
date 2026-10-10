@@ -1,6 +1,4 @@
 import { Link } from "react-router-dom";
-import { FaFacebookF } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
 
 const FOOTER_GROUPS = [
     {
@@ -32,7 +30,7 @@ const FOOTER_GROUPS = [
 
 function Footer() {
     return (
-        <footer className="border-t border-white/10 bg-[#0b0e0c] pb-24 pt-12 md:pb-8 md:pl-20">
+        <footer className="border-t border-white/10 bg-[#0b0e0c] pb-24 pt-12 md:pb-8 md:pl-[76px]">
             <div className="app-container">
                 <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
                     <div className="col-span-2 sm:col-span-3 lg:col-span-1">
@@ -43,10 +41,9 @@ function Footer() {
                         <p className="mt-4 max-w-xs text-sm leading-6 text-white/50">
                             Find the places, trails and experiences that make getting outdoors unforgettable.
                         </p>
-                        <div className="mt-5 flex items-center gap-3">
-                            <a href="https://www.facebook.com/" aria-label="Facebook" target="_blank" rel="noreferrer" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/60 transition hover:border-amber-300/40 hover:text-amber-200"><FaFacebookF /></a>
-                            <a href="https://x.com/" aria-label="X" target="_blank" rel="noreferrer" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/60 transition hover:border-amber-300/40 hover:text-amber-200"><FaXTwitter /></a>
-                        </div>
+                        <Link to="/contact-us" className="mt-4 inline-flex items-center rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white/75 transition hover:border-amber-300/40 hover:text-amber-200">
+                            Get in touch <span className="ml-2" aria-hidden="true">↗</span>
+                        </Link>
                     </div>
                     {FOOTER_GROUPS.map((group) => (
                         <div key={group.title}>
