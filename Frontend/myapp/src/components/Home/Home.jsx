@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 function Home({ heroType }) {
     const { user } = useAuth();
     return (
-        <main className="flex flex-col min-h-screen bg-black">
+        <main className="flex min-h-screen flex-col overflow-x-clip bg-black text-white">
 
             {/* Navbar */}
             <div className="sticky top-0 z-40">
@@ -17,16 +17,16 @@ function Home({ heroType }) {
                 <AuthButton />
             </div>}
             {/* Hero */}
-            <div className="relative z-20">
+            <div className="relative z-20 min-w-0 flex-1">
                 <Hero heroType={heroType} />
             </div>
 
             {/* Divider + Footer */}
-            <div className="relative z-30 w-full">
+            <div className="relative z-30 w-full pb-16 sm:pb-0">
 
                 {/* Center Divider */}
-                <div className="flex justify-center my-6">
-                    <div className="w-40 sm:w-48 md:w-52 h-px bg-white/40 rounded-full" />
+                <div className="flex justify-center px-5 py-6 sm:py-8">
+                    <div className="h-px w-24 rounded-full bg-amber-300/60 sm:w-48 md:w-52" />
                 </div>
 
                 <Footer />
