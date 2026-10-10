@@ -1,6 +1,7 @@
 """Authenticated upload endpoints for the S3-backed media library."""
 
 import hashlib
+import logging
 import uuid
 from pathlib import Path
 
@@ -11,6 +12,8 @@ from admin.service.service import get_current_admin
 from database.database import get_db
 from upload.model import MediaAsset
 from upload.s3 import bucket, client, public_url, read_url
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Media Upload"])
 
@@ -174,16 +177,35 @@ def register_uploaded_asset(
     try:
         digest = hashlib.sha256()
         response = client().get_object(Bucket=bucket(), Key=key)
+
+        # HTTPResponse and botocore StreamingBody do not expose the same
+        # chunking API. Read fixed-size chunks for compatibility and to avoid
+        # loading the entire object into memory.
         with response["Body"] as body:
-            for chunk in body.iter_chunks(chunk_size=1024 * 1024):
-                if chunk:
-                    digest.update(chunk)
+            while True:
+                chunk = body.read(1024 * 1024)
+                if not chunk:
+                    break
+                digest.update(chunk)
+
         sha256 = digest.hexdigest()
     except Exception as exc:
-        client().delete_object(Bucket=bucket(), Key=key)
+        logger.exception(
+            "S3 object hashing failed: bucket=%s key=%s",
+            bucket(),
+            key,
+        )
+        try:
+            client().delete_object(Bucket=bucket(), Key=key)
+        except Exception:
+            logger.exception(
+                "Failed to clean up unregistered S3 object: bucket=%s key=%s",
+                bucket(),
+                key,
+            )
         raise HTTPException(
             status_code=502,
-            detail="Could not verify the uploaded S3 object.",
+            detail="Could not verify the uploaded S3 object. Check backend logs.",
         ) from exc
 
     existing = db.query(MediaAsset).filter_by(sha256=sha256).first()
