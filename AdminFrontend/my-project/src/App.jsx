@@ -9,6 +9,7 @@ import EventDetailPage from "./EventPage/EventDetailPage";
 import DashboardPage from "./Dashboard/Dashboard";
 import ComingSoonPage from "./components/ComingSoonPage";
 import UsersListPage from "./Users/UsersListPage";
+import HeroManagementPage from "./Heroes/HeroManagementPage";
 
 
 
@@ -74,6 +75,13 @@ function App() {
           </ProtectedRoute>
         }
         />
+        <Route path="/admin/heroes" element={
+          <ProtectedRoute>
+            <HeroManagementPage />
+          </ProtectedRoute>
+        }
+        />
+
         <Route path="/admin/users" element={
           <ProtectedRoute>
             <UsersListPage />

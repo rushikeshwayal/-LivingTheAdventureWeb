@@ -17,6 +17,7 @@ const EASE = [0.16, 1, 0.3, 1];
 
 const NAV_LINKS = [
     { label: "Home", to: "/admin/home" },
+    { label: "Heroes", to: "/admin/heroes" },
     { label: "Dashboard", to: "/admin/dashboard" },
     { label: "Bookings", to: "/admin/bookings" },
     { label: "Guides", to: "/admin/guides" },
