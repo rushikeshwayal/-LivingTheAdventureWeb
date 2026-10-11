@@ -19,6 +19,18 @@ const LABEL_SUGGESTIONS = [
     "Peak Expedition",
 ];
 
+const createEmptyItineraryDay = (day = 1) => ({ day, title: "", description: "" });
+
+function parseItinerary(value) {
+    if (!value || typeof value !== "string") return [createEmptyItineraryDay()];
+    try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed.map((item, index) => ({ ...createEmptyItineraryDay(index + 1), ...item, day: index + 1 }));
+    } catch {
+        // Preserve older plain-text itinerary content for editing.
+    }
+    return value.split(/[;\n]+/).map((title) => title.trim()).filter(Boolean).map((title, index) => ({ ...createEmptyItineraryDay(index + 1), title }));
+}
 const EMPTY_FORM = {
     title: "",
     event_type: "",
@@ -33,7 +45,7 @@ const EMPTY_FORM = {
     duration_days: "",
     duration_nights: "",
     short_description: "",
-    itinerary: "",
+    itinerary: [createEmptyItineraryDay()],
     highlights: [],
     cover_image_url: "",
     poster_horizontal_1_url: "",
@@ -136,6 +148,7 @@ export default function CreateEventPage() {
                 setForm({
                     ...EMPTY_FORM,
                     ...event,
+                    itinerary: parseItinerary(event.itinerary),
                     age_requirement: event.age_requirement ?? "",
                     duration_days: event.duration_days ?? "",
                     duration_nights: event.duration_nights ?? "",
@@ -182,6 +195,7 @@ export default function CreateEventPage() {
 
         const payload = {
             ...form,
+            itinerary: JSON.stringify(form.itinerary.map((day, index) => ({ day: index + 1, title: day.title.trim(), description: day.description.trim() })).filter((day) => day.title || day.description)),
             age_requirement: Number(form.age_requirement) || 0,
             duration_days: Number(form.duration_days) || 0,
             duration_nights: Number(form.duration_nights) || 0,
@@ -424,13 +438,23 @@ export default function CreateEventPage() {
                                 className={textareaClass}
                             />
                         </Field>
-                        <Field label="Itinerary" full>
-                            <textarea
-                                value={form.itinerary}
-                                onChange={set("itinerary")}
-                                placeholder="Day 1 – ... Day 2 – ..."
-                                className={textareaClass}
-                            />
+                        <Field label="Trip itinerary" full>
+                            <div className="space-y-4">
+                                <p className="text-sm leading-6 text-[#6E6A5E]">Add one card for each day. Add a title and describe the plan for that day. The website will display each day separately.</p>
+                                {form.itinerary.map((day, index) => (
+                                    <div key={index} className="rounded-md border border-[#1B222C]/15 bg-[#F9F7F1] p-4 md:p-5">
+                                        <div className="mb-4 flex items-center justify-between">
+                                            <h4 className="font-medium text-[#1B222C]">Day {index + 1}</h4>
+                                            <button type="button" disabled={form.itinerary.length === 1} onClick={() => setForm((current) => ({ ...current, itinerary: current.itinerary.filter((_, i) => i !== index).map((item, i) => ({ ...item, day: i + 1 })) }))} className="text-xs font-medium text-[#9C4A3C] disabled:opacity-40">Remove day</button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <input value={day.title} onChange={(event) => setForm((current) => ({ ...current, itinerary: current.itinerary.map((item, i) => i === index ? { ...item, title: event.target.value } : item) }))} placeholder="e.g. Arrival and hotel check-in" className={inputClass} />
+                                            <textarea value={day.description} onChange={(event) => setForm((current) => ({ ...current, itinerary: current.itinerary.map((item, i) => i === index ? { ...item, description: event.target.value } : item) }))} placeholder="Describe activities, meals, travel, and important details for this day..." className={textareaClass} />
+                                        </div>
+                                    </div>
+                                ))}
+                                <button type="button" onClick={() => setForm((current) => ({ ...current, itinerary: [...current.itinerary, createEmptyItineraryDay(current.itinerary.length + 1)] }))} className="w-full rounded-sm border border-dashed border-[#4B5842]/50 px-4 py-3 text-sm font-medium text-[#4B5842] hover:bg-[#4B5842]/5">+ Add another day</button>
+                            </div>
                         </Field>
                         <Field full>
                             <TagListInput
