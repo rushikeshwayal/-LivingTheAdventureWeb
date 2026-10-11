@@ -16,6 +16,7 @@ import BookingSection from "./components/EventSchedule/BookingSection.jsx";
 
 import Highlights from "./components/EventSchedule/Highlighter.jsx";
 import InterestButton from "./InterestButton.jsx";
+import Footer from "../Footer/Footer.jsx";
 
 import {
     getApiErrorMessage,
@@ -307,7 +308,7 @@ function EventDetail() {
 
     return (
 
-        <div>
+        <div className={event.status?.toLowerCase() === "published" ? "pb-24 sm:pb-20" : ""}>
 
 
             {/* ================================================= */}
@@ -643,9 +644,7 @@ function EventDetail() {
             {/* SCHEDULE + BOOKING */}
             {/* ================================================= */}
 
-            <section className="
-                bg-neutral-950
-            ">
+            <section id="event-booking-section" className="scroll-mt-24 bg-neutral-950">
 
                 <div className="
                     space-y-10
@@ -794,15 +793,31 @@ function EventDetail() {
             {/* ================================================= */}
 
             <section className="w-full">
-
-                <Highlights
-                    highlights={
-                        event.state
-                    }
-                />
-
+                <Highlights highlights={event.state} />
             </section>
 
+            <Footer />
+
+            {event.status?.toLowerCase() === "published" && (
+                <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/15 bg-black/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md sm:px-6 sm:py-4">
+                    <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
+                        <div className="min-w-0">
+                            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-white sm:text-sm">
+                                <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+                                Event is live
+                            </p>
+                            <p className="mt-1 hidden text-sm text-neutral-400 sm:block">Explore the schedule and booking details.</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => document.getElementById("event-booking-section")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                            className="shrink-0 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:min-w-40 sm:px-8"
+                        >
+                            Book Now
+                        </button>
+                    </div>
+                </div>
+            )}
 
         </div>
     );
