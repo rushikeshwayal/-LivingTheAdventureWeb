@@ -65,7 +65,7 @@ function Hero({
                     playsInline
                     preload="auto"
                     loop
-                    className={`absolute inset-0 w-full h-full object-cover
+                    className={`absolute inset-0 hidden h-full w-full object-cover sm:block
             transition-opacity duration-1000
             ${showVideo ? "opacity-100" : "opacity-0"}
           `}
