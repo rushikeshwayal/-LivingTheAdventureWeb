@@ -15,6 +15,7 @@ import ScheduleHeader from "./components/EventSchedule/ScheduleHeader.jsx";
 import BookingSection from "./components/EventSchedule/BookingSection.jsx";
 
 import Highlights from "./components/EventSchedule/Highlighter.jsx";
+import InterestButton from "./InterestButton.jsx";
 
 import {
     getApiErrorMessage,
@@ -334,6 +335,8 @@ function EventDetail() {
                 }
             />
 
+
+            <InterestButton event={event} />
 
             {/* ================================================= */}
             {/* HIGHLIGHTS */}
