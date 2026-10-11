@@ -343,16 +343,9 @@ function EventDetail() {
             {/* HIGHLIGHTS */}
             {/* ================================================= */}
 
-            <section className="
-                bg-neutral-950
-                py-16
-            ">
+            <section className="bg-neutral-950 py-10 sm:py-14 lg:py-16">
 
-                <div className="
-                    max-w-7xl
-                    mx-auto
-                    px-6
-                ">
+                <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
 
                     <div className="
                         text-center
@@ -800,11 +793,7 @@ function EventDetail() {
             {/* EVENT STATE */}
             {/* ================================================= */}
 
-            <section className="
-                fixed
-                bottom-0
-                w-full
-            ">
+            <section className="w-full">
 
                 <Highlights
                     highlights={
