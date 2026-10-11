@@ -5,7 +5,7 @@ import { auth } from "./firebase";
 import { apiUrl } from "../api/config.js";
 import { FaPhone, FaKey, FaSpinner, FaCheckCircle, FaArrowRight } from "react-icons/fa";
 import Logo from "../components/Common/Logo/logo.jsx";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const normalizePhone = (phone) => {
     const digits = phone.replace(/\D/g, "");
@@ -15,6 +15,8 @@ const normalizePhone = (phone) => {
 };
 
 export default function Auth() {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [phone, setPhone] = useState("");
     const [otp, setOtp] = useState("");
     const [confirmation, setConfirmation] = useState(null);
@@ -147,7 +149,7 @@ export default function Auth() {
             );
 
             if (res.data.status === "LOGIN") {
-                window.location.href = "/";
+                navigate(location.state?.returnTo || "/", { replace: true });
             } else {
                 setError("User does not exist please sign-up");
             }
