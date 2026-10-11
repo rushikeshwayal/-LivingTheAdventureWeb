@@ -130,7 +130,7 @@ export default function InterestButton({ event }) {
         <section className="mx-auto my-6 w-full max-w-7xl px-4 sm:px-6">
             <div className="overflow-hidden rounded-2xl border border-neutral-700 bg-neutral-950 p-5 shadow-xl shadow-black/10 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
                 <div className="mb-5 min-w-0 sm:mb-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-400">Now launched</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-400">Now launched</p>
                     <h2 className="mt-2 text-xl font-semibold leading-snug text-white sm:text-2xl">Interested in this adventure?</h2>
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-300">
                         {user
@@ -144,14 +144,14 @@ export default function InterestButton({ event }) {
                         type="button"
                         onClick={handleInterest}
                         disabled={submitting || submitted || loadingProfile}
-                        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-300 px-6 py-3 text-sm font-bold text-neutral-950 transition-colors hover:bg-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:cursor-not-allowed disabled:opacity-70 sm:min-w-52 sm:w-auto"
+                        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-white bg-white px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:cursor-not-allowed disabled:opacity-70 sm:min-w-52 sm:w-auto"
                     >
                         {submitting ? <FaSpinner className="animate-spin" /> :
                             submitted ? <FaCheckCircle /> : <FaRegBell />}
                         {submitting ? "Sending…" : submitted ? "Interest registered" : user ? "I'm interested" : "Log in to continue"}
                     </button>
-                    {error && <p role="alert" className="mt-3 text-sm text-red-300">{error}</p>}
-                    {submitted && <p role="status" className="mt-3 text-center text-sm text-emerald-300">Your interest has been sent successfully.</p>}
+                    {error && <p role="alert" className="mt-3 text-sm text-neutral-300">{error}</p>}
+                    {submitted && <p role="status" className="mt-3 text-center text-sm text-neutral-300">Your interest has been sent successfully.</p>}
                 </div>
             </div>
         </section>
