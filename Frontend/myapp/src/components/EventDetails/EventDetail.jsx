@@ -688,6 +688,19 @@ function EventDetail() {
 
                             <>
 
+                                <div className="rounded-xl border border-amber-400/30 bg-amber-50 p-4 sm:flex sm:items-start sm:gap-3">
+                                    <div className="mb-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 sm:mb-0" aria-hidden="true">
+                                        <span className="text-lg font-bold">!</span>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-neutral-900">Booking update</h3>
+                                        <p className="mt-1 text-sm leading-6 text-neutral-700">
+                                            Online payments are not available yet. Interested in joining this adventure?
+                                            Tap <strong>I’m interested</strong> and our team will contact you to help with the next steps.
+                                        </p>
+                                    </div>
+                                </div>
+
                                 <ScheduleHeader
 
                                     start={
