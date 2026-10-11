@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { GoPlus, GoCheck } from "react-icons/go";
+import { useNavigate } from "react-router-dom";
 
 function Slider({ heroContent = [], favourites, onToggleFavourite }) {
+    const navigate = useNavigate();
     const initialHero = useMemo(() => heroContent[0] || null, [heroContent]);
     const [activeHero, setActiveHero] = useState(initialHero);
     const [audioOn, setAudioOn] = useState(false);
@@ -105,13 +107,16 @@ function Slider({ heroContent = [], favourites, onToggleFavourite }) {
 
                             {/* CTA */}
                             <div className="flex gap-3 sm:gap-4">
-                                <button className="
-                  bg-white text-black font-bold
-                  py-2 sm:py-2.5 lg:py-3
-                  px-5 sm:px-6 lg:px-8
-                  rounded-lg
-                  text-sm sm:text-base
-                ">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (activeHero?.eventId) {
+                                            navigate("/eventDetails/" + activeHero.eventId);
+                                        }
+                                    }}
+                                    disabled={!activeHero?.eventId}
+                                    className="bg-white text-black font-bold py-2 sm:py-2.5 lg:py-3 px-5 sm:px-6 lg:px-8 rounded-lg text-sm sm:text-base transition-colors hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:opacity-60"
+                                >
                                     Book Now
                                 </button>
 
