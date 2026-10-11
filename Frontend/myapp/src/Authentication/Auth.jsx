@@ -186,14 +186,14 @@ export default function Auth() {
 
                     {/* Background decorative elements */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute top-1/4 -left-48 w-96 h-96 bg-black-500/10 rounded-full blur-3xl"></div>
+                        <div className="absolute top-1/4 -left-48 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
                         <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
                     </div>
 
                     <div className="w-full max-w-md relative z-10">
 
                         {/* Card */}
-                        <div className="w-full rounded-2xl border border-white/20 bg-slate-900/85 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-7">
+                        <div className="w-full rounded-2xl border border-white/25 bg-black/90 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-7">
 
                             {/* Header */}
                             <div className="text-center mb-8">
@@ -233,24 +233,24 @@ export default function Auth() {
                                         maxLength="10"
                                     />
                                 </div>
-                                <p className="text-xs text-black-500 mt-1.5">Enter 10-digit Indian mobile number</p>
+                                <p className="text-xs text-neutral-400 mt-1.5">Enter 10-digit Indian mobile number</p>
                             </div>
 
                             {/* OTP Input */}
                             {otpSent && (
                                 <div className="mb-6 animate-slide-down">
-                                    <label className="block text-sm font-medium text-black-300 mb-2">
+                                    <label className="block text-sm font-medium text-white mb-2">
                                         Verification Code
                                     </label>
                                     <div className="relative">
-                                        <FaKey className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
+                                        <FaKey className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" />
                                         <input
                                             id="otp-input"
                                             type="text"
                                             placeholder="Enter 6-digit OTP"
                                             value={otp}
                                             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                                            className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all tracking-widest text-center text-lg font-semibold"
+                                            className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-neutral-600 focus:border-white focus:outline-none focus:ring-2 focus:ring-white/20 transition-all tracking-widest text-center text-lg font-semibold"
                                             maxLength="6"
                                             autoComplete="one-time-code"
                                         />
@@ -262,7 +262,7 @@ export default function Auth() {
                             <button
                                 onClick={otpSent ? verifyOtp : sendOtp}
                                 disabled={loading || (!otpSent && !phone) || (otpSent && otp.length !== 6)}
-                                className="w-full bg-gradient-to-r bg-black text-white py-3.5 rounded-lg font-semibold disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 group"
+                                className="w-full bg-black text-white py-3.5 rounded-lg font-semibold disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 group"
                             >
                                 {loading ? (
                                     <>
@@ -286,14 +286,14 @@ export default function Auth() {
                             {otpSent && (
                                 <div className="mt-4 text-center animate-fade-in">
                                     {timer > 0 ? (
-                                        <p className="text-sm text-black-400">
-                                            Resend OTP in <span className="text-black-400 font-semibold">{timer}s</span>
+                                        <p className="text-sm text-neutral-300">
+                                            Resend OTP in <span className="text-neutral-300 font-semibold">{timer}s</span>
                                         </p>
                                     ) : (
                                         <button
                                             onClick={handleResend}
                                             disabled={loading}
-                                            className="text-sm text-black-400 hover:text-black-300 font-medium disabled:opacity-50 transition-colors"
+                                            className="text-sm text-neutral-300 hover:text-white font-medium disabled:opacity-50 transition-colors"
                                         >
                                             Resend OTP
                                         </button>
@@ -303,15 +303,15 @@ export default function Auth() {
 
                             {/* Divider */}
                             <div className="flex items-center gap-4 my-6">
-                                <div className="flex-1 h-px bg-black-700"></div>
-                                <span className="text-black-500 text-sm">OR</span>
-                                <div className="flex-1 h-px bg-black-700"></div>
+                                <div className="flex-1 h-px bg-neutral-700"></div>
+                                <span className="text-neutral-400 text-sm">OR</span>
+                                <div className="flex-1 h-px bg-neutral-700"></div>
                             </div>
 
                             {/* Signup Link */}
-                            <p className="text-center text-sm text-black-400">
+                            <p className="text-center text-sm text-neutral-300">
                                 Don't have an account?{" "}
-                                <a href="/signup" className="text-black-400 hover:text-black-300 font-medium transition-colors">
+                                <a href="/signup" className="text-neutral-300 hover:text-white font-medium transition-colors">
                                     Sign up
                                 </a>
                             </p>
