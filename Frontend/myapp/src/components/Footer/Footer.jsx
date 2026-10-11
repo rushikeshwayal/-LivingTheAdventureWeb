@@ -1,92 +1,94 @@
-// src/components/Footer.jsx
-import React from "react";
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaXTwitter } from "react-icons/fa6";
 
+const footerSections = [
+    {
+        title: "Company",
+        links: [
+            { label: "About Us", to: "/about" },
+            { label: "Contact Us", to: "/contact-us" },
+        ],
+    },
+    {
+        title: "Legal",
+        links: [
+            { label: "Privacy Policy", to: "/privacy-policy" },
+            { label: "Terms & Conditions", to: "/terms-conditions" },
+            { label: "Refund Policy", to: "/refund-policy" },
+        ],
+    },
+    {
+        title: "View Website in",
+        links: [{ label: "English", to: null }],
+    },
+    {
+        title: "Need Help?",
+        links: [
+            { label: "Visit Help Center", to: "/help" },
+            { label: "Share Feedback", to: "/contact-us" },
+        ],
+    },
+];
+
 const Footer = () => {
     return (
-        <footer className="bg-black text-gray-400 py-12 px-16 md:px-20 w-full border-t border-gray-800">
-            <div className="max-w-7xl mx-auto grid grid-cols-2 md:flex md:justify-around gap-10">
-                <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Company</h3>
-                    <ul className="space-y-2">
-                        <li>
-                            <Link to="/about" className="hover:text-white transition-colors">
-                                About Us
-                            </Link>
-                        </li>
-                        <li>
-                            <Link to="/contact-us" className="hover:text-white transition-colors">
-                                Contact Us
-                            </Link>
-                        </li>
-                    </ul>
-                </div>
+        <footer className="w-full border-t border-gray-800 bg-black px-5 py-10 text-gray-400 sm:px-8 sm:py-12 lg:px-12">
+            <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-10">
+                {footerSections.map((section) => (
+                    <section key={section.title} className="min-w-0">
+                        <h3 className="mb-3 text-base font-semibold leading-snug text-white sm:text-lg">
+                            {section.title}
+                        </h3>
+                        <ul className="space-y-2">
+                            {section.links.map((item) => (
+                                <li key={item.label}>
+                                    {item.to ? (
+                                        <Link
+                                            to={item.to}
+                                            className="inline-block break-words text-sm transition-colors hover:text-white sm:text-base"
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    ) : (
+                                        <span className="text-sm text-gray-300 sm:text-base">
+                                            {item.label}
+                                        </span>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                ))}
 
-                <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Legal</h3>
-                    <ul className="space-y-2">
-                        <li>
-                            <Link
-                                to="/privacy-policy"
-                                className="hover:text-white transition-colors"
-                            >
-                                Privacy Policy
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                to="/terms-conditions"
-                                className="hover:text-white transition-colors"
-                            >
-                                Terms & Conditions
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                to="/refund-policy"
-                                className="hover:text-white transition-colors"
-                            >
-                                Refund Policy
-                            </Link>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">View Website in</h3>
-                    <div className="flex items-center gap-2 text-gray-300">
-                        <span>English</span>
+                <section className="min-w-0">
+                    <h3 className="mb-3 text-base font-semibold leading-snug text-white sm:text-lg">
+                        Connect with Us
+                    </h3>
+                    <div className="mt-3 flex items-center gap-5">
+                        <a
+                            href="https://www.facebook.com/"
+                            aria-label="Facebook"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xl transition-colors hover:text-white"
+                        >
+                            <FaFacebookF aria-hidden="true" />
+                        </a>
+                        <a
+                            href="https://x.com/"
+                            aria-label="X"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xl transition-colors hover:text-white"
+                        >
+                            <FaXTwitter aria-hidden="true" />
+                        </a>
                     </div>
-                </div>
-
-                <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Need Help?</h3>
-                    <ul className="space-y-2">
-                        <li>
-                            <Link to="/help" className="hover:text-white transition-colors">
-                                Visit Help Center
-                            </Link>
-                        </li>
-                        <li>
-                            <Link to="/contact-us" className="hover:text-white transition-colors">
-                                Share Feedback
-                            </Link>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Connect with Us</h3>
-                    <div className="flex items-center gap-6 mt-2 mb-6">
-                        <FaFacebookF className="text-2xl hover:text-white transition-colors cursor-pointer" />
-                        <FaXTwitter className="text-2xl hover:text-white transition-colors cursor-pointer" />
-                    </div>
-                </div>
+                </section>
             </div>
 
-            <div className="max-w-full mx-auto text-sm text-gray-500 mt-12 space-y-3 flex-col justify-center items-center md:flex md:space-y-0 md:flex-row md:gap-6">
-                <p>© 2026 LivingTheAdventure. All Rights Reserved.</p>
+            <div className="mx-auto mt-10 max-w-7xl border-t border-gray-800 pt-5 text-center text-xs leading-relaxed text-gray-500 sm:mt-12 sm:text-sm">
+                <p>© {new Date().getFullYear()} LivingTheAdventure. All Rights Reserved.</p>
             </div>
         </footer>
     );
