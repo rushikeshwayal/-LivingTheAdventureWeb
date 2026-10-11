@@ -644,9 +644,7 @@ function EventDetail() {
             {/* SCHEDULE + BOOKING */}
             {/* ================================================= */}
 
-            <section className="
-                bg-neutral-950
-            ">
+            <section id="event-booking-section" className="scroll-mt-24 bg-neutral-950">
 
                 <div className="
                     space-y-10
