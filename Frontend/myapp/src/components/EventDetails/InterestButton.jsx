@@ -4,7 +4,7 @@ import { FaCheckCircle, FaRegBell, FaSpinner } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { fetchMe } from "../Profile/Profileapi.js";
 
-const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "fee7630b-38b1-43bf-8ddc-81ca027ba964";
 
 function storageKey(userId, eventId) {
     return `event-interest:${userId}:${eventId}`;
@@ -75,7 +75,7 @@ export default function InterestButton({ event }) {
         if (submitted || submitting) return;
 
         if (!WEB3FORMS_ACCESS_KEY) {
-            setError("Interest registration is not configured yet. Please contact us.");
+            setError("We couldn't connect to the interest form right now. Please try again in a moment.");
             return;
         }
 
@@ -128,11 +128,11 @@ export default function InterestButton({ event }) {
 
     return (
         <section className="mx-auto my-6 w-full max-w-7xl px-4 sm:px-6">
-            <div className="rounded-2xl border border-amber-300/20 bg-gradient-to-br from-amber-300/10 to-white/[0.03] p-5 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
-                <div className="mb-4 sm:mb-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">Now launched</p>
-                    <h2 className="mt-2 text-xl font-semibold text-white sm:text-2xl">Interested in this adventure?</h2>
-                    <p className="mt-2 text-sm leading-6 text-gray-300">
+            <div className="overflow-hidden rounded-2xl border border-neutral-700 bg-neutral-950 p-5 shadow-xl shadow-black/10 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
+                <div className="mb-5 min-w-0 sm:mb-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-400">Now launched</p>
+                    <h2 className="mt-2 text-xl font-semibold leading-snug text-white sm:text-2xl">Interested in this adventure?</h2>
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-300">
                         {user
                             ? "Let our team know and we’ll follow up with you."
                             : "Log in first, then come back here to register your interest."}
@@ -144,7 +144,7 @@ export default function InterestButton({ event }) {
                         type="button"
                         onClick={handleInterest}
                         disabled={submitting || submitted || loadingProfile}
-                        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-300 px-6 py-3 text-sm font-bold text-neutral-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-70 sm:min-w-52 sm:w-auto"
+                        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-300 px-6 py-3 text-sm font-bold text-neutral-950 transition-colors hover:bg-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:cursor-not-allowed disabled:opacity-70 sm:min-w-52 sm:w-auto"
                     >
                         {submitting ? <FaSpinner className="animate-spin" /> :
                             submitted ? <FaCheckCircle /> : <FaRegBell />}
