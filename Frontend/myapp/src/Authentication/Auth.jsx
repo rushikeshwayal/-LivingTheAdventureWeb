@@ -169,17 +169,18 @@ export default function Auth() {
     };
 
     return (
-        <div>
-            <div className="absolute z-10">
+        <div className="relative isolate min-h-screen overflow-hidden bg-slate-950">
+            <div className="absolute left-3 top-3 z-30 sm:left-6 sm:top-5">
                 <Link to="/">
                     <Logo />
                 </Link>
             </div>
             <div>
-                <div className="fixed">
-                    <img src="https://images.pexels.com/photos/14394294/pexels-photo-14394294.jpeg" />
+                <div className="fixed inset-0 z-0">
+                    <img src="https://images.pexels.com/photos/14394294/pexels-photo-14394294.jpeg" alt="" className="h-full w-full object-cover object-center" />
+                    <div className="absolute inset-0 bg-slate-950/65" />
                 </div>
-                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 py-8">
+                <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-24 sm:py-12">
 
                     <div id="recaptcha-container"></div>
 
@@ -192,12 +193,12 @@ export default function Auth() {
                     <div className="w-full max-w-md relative z-10">
 
                         {/* Card */}
-                        <div className="bg-white/10 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.45)] p-5 rounded-2xl">
+                        <div className="w-full rounded-2xl border border-white/20 bg-slate-900/85 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-7">
 
                             {/* Header */}
                             <div className="text-center mb-8">
-                                <h1 className="text-3xl font-bold text-black mb-2">Welcome Back</h1>
-                                <p className="text-black-400 text-sm">Enter your phone number to continue</p>
+                                <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">Welcome Back</h1>
+                                <p className="text-sm text-slate-300">Enter your phone number to continue</p>
                             </div>
 
                             {/* Success Message */}
@@ -217,18 +218,18 @@ export default function Auth() {
 
                             {/* Phone Input */}
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-black-300 mb-2">
+                                <label className="block text-sm font-medium text-slate-200 mb-2">
                                     Phone Number
                                 </label>
                                 <div className="relative">
-                                    <FaPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
+                                    <FaPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <input
                                         type="tel"
                                         placeholder="Enter your phone number"
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         disabled={otpSent}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-white/20 focus:border-white/60 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                         maxLength="10"
                                     />
                                 </div>
