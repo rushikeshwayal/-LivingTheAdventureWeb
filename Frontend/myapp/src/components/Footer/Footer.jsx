@@ -32,11 +32,11 @@ const footerSections = [
 
 const Footer = () => {
     return (
-        <footer className="w-full border-t border-gray-800 bg-black px-5 py-10 text-gray-400 sm:px-8 sm:py-12 lg:px-12">
-            <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-10">
+        <footer className="w-full border-t border-gray-800 bg-black py-8 pl-16 pr-4 text-gray-400 sm:py-10 sm:pl-20 sm:pr-8 lg:px-12">
+            <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-x-5 gap-y-8 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-5 lg:gap-10">
                 {footerSections.map((section) => (
                     <section key={section.title} className="min-w-0">
-                        <h3 className="mb-3 text-base font-semibold leading-snug text-white sm:text-lg">
+                        <h3 className="mb-3 text-sm font-semibold leading-snug text-white sm:text-base lg:text-lg">
                             {section.title}
                         </h3>
                         <ul className="space-y-2">
@@ -45,12 +45,12 @@ const Footer = () => {
                                     {item.to ? (
                                         <Link
                                             to={item.to}
-                                            className="inline-block break-words text-sm transition-colors hover:text-white sm:text-base"
+                                            className="inline-block break-words text-xs leading-relaxed transition-colors hover:text-white sm:text-sm lg:text-base"
                                         >
                                             {item.label}
                                         </Link>
                                     ) : (
-                                        <span className="text-sm text-gray-300 sm:text-base">
+                                        <span className="text-xs text-gray-300 sm:text-sm lg:text-base">
                                             {item.label}
                                         </span>
                                     )}
@@ -61,7 +61,7 @@ const Footer = () => {
                 ))}
 
                 <section className="min-w-0">
-                    <h3 className="mb-3 text-base font-semibold leading-snug text-white sm:text-lg">
+                    <h3 className="mb-3 text-sm font-semibold leading-snug text-white sm:text-base lg:text-lg">
                         Connect with Us
                     </h3>
                     <div className="mt-3 flex items-center gap-5">
@@ -87,7 +87,7 @@ const Footer = () => {
                 </section>
             </div>
 
-            <div className="mx-auto mt-10 max-w-7xl border-t border-gray-800 pt-5 text-center text-xs leading-relaxed text-gray-500 sm:mt-12 sm:text-sm">
+            <div className="mx-auto mt-8 max-w-7xl border-t border-gray-800 pt-4 text-center text-xs leading-relaxed text-gray-500 sm:mt-10 sm:pt-5 sm:text-sm">
                 <p>© {new Date().getFullYear()} LivingTheAdventure. All Rights Reserved.</p>
             </div>
         </footer>
