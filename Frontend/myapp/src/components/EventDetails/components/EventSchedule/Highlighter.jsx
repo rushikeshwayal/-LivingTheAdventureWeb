@@ -1,5 +1,13 @@
 function Highlights({ highlights }) {
-    if (!highlights) return null;
+    const normalizedStatus = String(highlights || "").trim().toLowerCase();
+    const statusLabels = {
+        upcoming: "Upcoming",
+        ongoing: "Event ongoing",
+        completed: "Event completed",
+    };
+    const statusLabel = statusLabels[normalizedStatus];
+
+    if (!statusLabel) return null;
 
     return (
         <div
@@ -32,13 +40,7 @@ function Highlights({ highlights }) {
           text-sm md:text-base
           text-white
         ">
-                    {highlights === "Upcoming"
-                        ? "Upcoming Book Now!"
-                        : highlights === "Ongoing"
-                            ? "Event Ongoing"
-                            : highlights === "Completed"
-                                ? "Event Completed"
-                                : null}
+                    {statusLabel}
                 </p>
             </div>
         </div>
