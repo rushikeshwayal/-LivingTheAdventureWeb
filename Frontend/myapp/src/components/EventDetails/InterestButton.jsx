@@ -127,8 +127,8 @@ export default function InterestButton({ event }) {
     };
 
     return (
-        <section className="mx-auto my-6 w-full max-w-7xl px-4 sm:px-6">
-            <div className="overflow-hidden rounded-2xl border border-neutral-700 bg-neutral-950 p-5 shadow-xl shadow-black/10 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
+        <section className="w-full bg-neutral-950 px-4 py-6 sm:px-6 sm:py-8">
+            <div className="mx-auto w-full max-w-7xl overflow-hidden rounded-2xl border border-neutral-700 bg-neutral-950 p-5 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
                 <div className="mb-5 min-w-0 sm:mb-0">
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-400">Now launched</p>
                     <h2 className="mt-2 text-xl font-semibold leading-snug text-white sm:text-2xl">Interested in this adventure?</h2>
