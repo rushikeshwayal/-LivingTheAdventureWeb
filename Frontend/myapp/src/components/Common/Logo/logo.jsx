@@ -1,11 +1,13 @@
-import logo from '../../../assets/logo.png';
-import logo1 from '../../../assets/IMG_4095.PNG'
-import logo2 from '../../../assets/IMG_4094.PNG'
-import logo3 from '../../../assets/IMG_6884.PNG'
+import logo1 from '../../../assets/IMG_4095.PNG';
+
 function Logo() {
     return (
-        <div className="flex items-center justify-center">
-            <img src={logo1} alt="Logo" className="h-20 ml-10" />
+        <div className="flex min-w-0 items-center justify-center">
+            <img
+                src={logo1}
+                alt="Living the Adventure"
+                className="h-12 w-auto max-w-full object-contain sm:h-16 md:h-20"
+            />
         </div>
     );
 }
